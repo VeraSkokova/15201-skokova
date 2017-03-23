@@ -16,7 +16,7 @@ public class ConfigParser {
         File file = new File(this.configFileName);
         FileReader helper = new FileReader(file);
         BufferedReader reader = new BufferedReader(helper);
-        while ((reader.readLine() != null) && (reader.readLine().equals(""))) {
+        while ((reader.readLine() != null) && (!(reader.readLine().equals("")))) {
             this.filterStrings.add(reader.readLine());
         }
     }
