@@ -17,5 +17,5 @@ public class ExtentionFilter implements Filter {
         else {
             return false;
         }
-    }          
+    }
 }

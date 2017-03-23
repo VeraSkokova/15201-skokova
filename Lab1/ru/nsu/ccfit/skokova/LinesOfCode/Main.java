@@ -16,6 +16,8 @@ public class Main {
         }
 
         System.out.println("Total: ");
+        String a = new String("aaa");
+        System.out.println(a.substring(0,1));
 
     }
 
