@@ -4,7 +4,11 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class FilterFactory {
-    static Map<String, Class> creators = new HashMap<>();
+    static Map<String, Class> creators;
+
+    static {
+        creators = new HashMap<>();
+    }
 
     private static FilterFactory instance;
 
@@ -17,6 +21,9 @@ public class FilterFactory {
         return instance;
     }
 
+    public static Map<String, Class> getCreators() {
+        return creators;
+    }
 
     public FilterSerializer createFilterSerializer(String s) throws InstantiationException, IllegalAccessException { //TODO: проверка на null
         String sTrimmed = s.trim();

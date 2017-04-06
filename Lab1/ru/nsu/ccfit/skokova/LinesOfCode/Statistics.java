@@ -47,5 +47,19 @@ class StatCounter {
     public void incFilesCount() {
         this.filesCount++;
     }
+
+    public void setToZero() {
+        this.linesCount = 0;
+        this.filesCount = 0;
+    }
+
+    public boolean equals(StatCounter another) {
+        if (this.linesCount == another.linesCount) {
+            if (this.filesCount == another.filesCount) {
+                return true;
+            }
+        }
+        return false;
+    }
 }
 

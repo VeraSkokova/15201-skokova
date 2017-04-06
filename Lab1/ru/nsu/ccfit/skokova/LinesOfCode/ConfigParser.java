@@ -5,10 +5,15 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Objects;
 
 public class ConfigParser {
     private String configFileName;
     private ArrayList<String> filterStrings;
+
+    public ArrayList<String> getFilterStrings() {
+        return filterStrings;
+    }
 
     public ConfigParser(String fileName) throws IOException {
         this.configFileName = fileName;
@@ -16,9 +21,12 @@ public class ConfigParser {
         File file = new File(this.configFileName);
         FileReader helper = new FileReader(file);
         BufferedReader reader = new BufferedReader(helper);
-        while ((reader.readLine() != null) && (!(reader.readLine().equals("")))) {
-            this.filterStrings.add(reader.readLine());
+        String temp = reader.readLine();
+        while (temp != null) {
+            if (!Objects.equals(temp, "")) {
+                this.filterStrings.add(temp);
+            }
+            temp = reader.readLine();
         }
     }
-
 }
