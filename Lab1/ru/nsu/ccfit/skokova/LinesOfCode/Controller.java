@@ -6,6 +6,7 @@ import java.io.*;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Scanner;
+import java.util.Set;
 
 public class Controller {
     private Statistics statistics;
@@ -80,6 +81,17 @@ public class Controller {
             System.out.println("Oops"); //TODO
         }
         return filters;
+    }
+
+    public void printStatistics() {
+        Set<String> keys = this.getStatistics().getStat().keySet();
+        for (String s : keys) {
+            StatCounter temp = this.getStatistics().getStat().get(s);
+            if (temp.getFilesCount() == 0) {
+                continue;
+            }
+            System.out.println(s.toString() + " " + temp.getLinesCount() + " lines in " + temp.getFilesCount() + " files");
+        }
     }
 }
 

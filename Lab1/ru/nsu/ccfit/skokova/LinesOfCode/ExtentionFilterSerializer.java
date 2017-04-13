@@ -2,7 +2,7 @@ package ru.nsu.ccfit.skokova.LinesOfCode;
 
 public class ExtentionFilterSerializer implements FilterSerializer {
     static {
-        FilterFactory.getInstance().creators.put(".", ExtentionFilterSerializer.class);
+        FilterFactory.creators.put(".", ExtentionFilterSerializer.class);
     }
     public ExtentionFilterSerializer() {}
 

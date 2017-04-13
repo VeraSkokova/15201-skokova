@@ -18,4 +18,9 @@ public class ExtentionFilter implements Filter {
             return false;
         }
     }
+
+    @Override
+    public String toString() {
+        return extension;
+    }
 }

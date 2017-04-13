@@ -18,4 +18,9 @@ public class EarlierTimeFilter implements Filter {
             return false;
         }
     }
+
+    @Override
+    public String toString() {
+        return "<" + time;
+    }
 }
