@@ -1,5 +1,7 @@
 package ru.nsu.ccfit.skokova.LinesOfCode;
 
+import static ru.nsu.ccfit.skokova.LinesOfCode.Controller;
+
 import java.io.*;
 import java.util.ArrayList;
 import org.junit.Assert;

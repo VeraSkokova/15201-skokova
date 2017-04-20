@@ -21,21 +21,21 @@
 
         <target name="all" description="Do the build"  depends="LoC.jar"/>
 
-    <target name="testCompile" depends="compile, make.dirs">
-       <javac srcdir="LinesOfCode/Tests" classpath="${projectName}.jar:../lib/junit/junit-4.11.jar" destdir="${test.build.dir}" />
+    <target name="testCompile" depends="compile, make.dirs, LoC.jar">
+       <javac srcdir="../Tests" classpath="./LoC.jar:./build/class:./JUnit/junit-4.12.jar" destdir="./build" />
    </target>
 
    <target name="test" depends="testCompile">
        <junit>
            <classpath>
-               <pathelement location="../lib/junit/junit-4.11.jar" />
-               <pathelement location="../lib/hamcrest/hamcrest-core-1.3.jar" />
-               <pathelement location="${projectName}.jar" />
-               <pathelement location="${test.build.dir}" />
+               <pathelement location="./JUnit/junit-4.11.jar" />
+               <pathelement location="./JUnit/hamcrest-core-1.3.jar" />
+               <pathelement location="LoC.jar" />
+               <pathelement location="./build" />
            </classpath>
            <formatter type="brief" usefile="false" />
            <batchtest>
-               <fileset dir="${test.build.dir}" includes="**/*Test.class" />
+               <fileset dir="./build" includes="**/*Test.class" />
            </batchtest>
        </junit>
     </target>
