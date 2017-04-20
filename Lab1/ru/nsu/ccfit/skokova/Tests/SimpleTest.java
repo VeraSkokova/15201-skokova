@@ -1,6 +1,6 @@
 package ru.nsu.ccfit.skokova.LinesOfCode;
 
-/*import java.io.*;
+import java.io.*;
 import java.util.ArrayList;
 import org.junit.Assert;
 import org.junit.Test;
@@ -25,4 +25,4 @@ public class SimpleTest {
     Assert.assertEquals(33, controller.getStatistics().getStat().get(">1400000000").getLinesCount());
     System.out.println("TEST SimpleTest PASSED");
   }
-}*/
+}
