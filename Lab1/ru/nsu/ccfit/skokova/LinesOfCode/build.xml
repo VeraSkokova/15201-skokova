@@ -1,0 +1,48 @@
+<project name="LoC" default="all" >
+
+  <target name="make.dirs" description="Make some dirs">
+       <mkdir dir="build"/>
+       <mkdir dir="build/class"/>
+        </target>
+
+        <target name="compile" description="compile java"  depends="make.dirs">
+       <javac destdir="build/class">
+      <src path="."/>
+       </javac>
+        </target>
+
+        <target name="LoC.jar" description="make jar file" depends="compile">
+           <jar jarfile="build/LoC.jar" basedir="build/class">
+               <manifest>
+                   <attribute name="Main-Class" value="ru.nsu.ccfit.skokova.LinesOfCode.Main" />
+               </manifest>
+          </jar>
+        </target>
+
+        <target name="all" description="Do the build"  depends="LoC.jar"/>
+
+    <target name="testCompile" depends="compile, make.dirs">
+       <javac srcdir="LinesOfCode/Tests" classpath="${projectName}.jar:../lib/junit/junit-4.11.jar" destdir="${test.build.dir}" />
+   </target>
+
+   <target name="test" depends="testCompile">
+       <junit>
+           <classpath>
+               <pathelement location="../lib/junit/junit-4.11.jar" />
+               <pathelement location="../lib/hamcrest/hamcrest-core-1.3.jar" />
+               <pathelement location="${projectName}.jar" />
+               <pathelement location="${test.build.dir}" />
+           </classpath>
+           <formatter type="brief" usefile="false" />
+           <batchtest>
+               <fileset dir="${test.build.dir}" includes="**/*Test.class" />
+           </batchtest>
+       </junit>
+    </target>
+
+        <target name="clean" description="clean up">
+       <echo>I'm cleaning up.</echo>
+       <delete dir="build"/>
+        </target>
+
+</project>

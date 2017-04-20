@@ -1,6 +1,6 @@
 package ru.nsu.ccfit.skokova.LinesOfCode;
 
-import java.io.*;
+/*import java.io.*;
 import java.util.ArrayList;
 import org.junit.Assert;
 import org.junit.Test;
@@ -20,4 +20,4 @@ public class ConfigParserTest {
     Assert.assertEquals("   .java", configParser.getFilterStrings().get(4));
     System.out.println("TEST ConfigParserTest PASSED");
   }
-}
+}*/
