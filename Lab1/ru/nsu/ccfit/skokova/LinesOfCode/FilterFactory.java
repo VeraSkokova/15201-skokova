@@ -25,8 +25,18 @@ public class FilterFactory {
         return creators;
     }
 
-    public FilterSerializer createFilterSerializer(String s) throws InstantiationException, IllegalAccessException { //TODO: проверка на null
+    public FilterSerializer createFilterSerializer(String s) throws InstantiationException, IllegalAccessException, IncorrectFilterTypeException { //TODO: проверка на null
         String sTrimmed = s.trim();
-        return  (FilterSerializer) creators.get(sTrimmed.substring(0, 1)).newInstance();
+        if (!(creators.containsKey(sTrimmed.substring(0, 1)))) {
+            throw new IncorrectFilterTypeException("Incorrect type of filter: " + sTrimmed);
+        }
+        FilterSerializer result = (FilterSerializer) creators.get(sTrimmed.substring(0, 1)).newInstance();
+        return result;
+    }
+}
+
+class IncorrectFilterTypeException extends Exception {
+    IncorrectFilterTypeException(String message) {
+        super(message);
     }
 }

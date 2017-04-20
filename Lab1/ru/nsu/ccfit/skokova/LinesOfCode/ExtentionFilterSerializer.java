@@ -6,7 +6,10 @@ public class ExtentionFilterSerializer implements FilterSerializer {
     }
     public ExtentionFilterSerializer() {}
 
-    public ExtentionFilter parseFilter(String line) {
+    public ExtentionFilter parseFilter(String line) throws FilterCreateException {
+        if (Character.isWhitespace(line.charAt(1))) {
+            throw new FilterCreateException("Excess whitespace in " + line);
+        }
         return new ExtentionFilter(line);
     }
 }

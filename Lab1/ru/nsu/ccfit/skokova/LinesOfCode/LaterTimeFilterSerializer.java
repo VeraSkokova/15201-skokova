@@ -7,7 +7,6 @@ public class LaterTimeFilterSerializer implements FilterSerializer {
     }
 
     public LaterTimeFilter parseFilter (String line) {
-
-        return new LaterTimeFilter(Long.parseLong(line.substring(1), 10));
+        return new LaterTimeFilter(Long.parseLong(line.substring(1)));
     }
 }

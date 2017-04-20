@@ -1,10 +1,12 @@
 package ru.nsu.ccfit.skokova.LinesOfCode;
 
 public class NotFilter implements Filter {
-    Filter filter;
+    private Filter filter;
+    private String filterString;
 
-    public NotFilter(Filter f) {
+    public NotFilter(Filter f, String s) {
         this.filter = f;
+        this.filterString = s;
     }
 
     public boolean check(String fileName) {
@@ -13,5 +15,10 @@ public class NotFilter implements Filter {
         } else {
             return false;
         }
+    }
+
+    @Override
+    public String toString() {
+        return this.filterString;
     }
 }

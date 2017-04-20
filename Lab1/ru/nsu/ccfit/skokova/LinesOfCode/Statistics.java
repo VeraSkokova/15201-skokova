@@ -53,13 +53,23 @@ class StatCounter {
         this.filesCount = 0;
     }
 
-    public boolean equals(StatCounter another) {
-        if (this.linesCount == another.linesCount) {
-            if (this.filesCount == another.filesCount) {
-                return true;
-            }
-        }
-        return false;
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        StatCounter counter = (StatCounter) o;
+
+        if (linesCount != counter.linesCount) return false;
+        return filesCount == counter.filesCount;
     }
+
+    @Override
+    public int hashCode() {
+        int result = linesCount;
+        result = 31 * result + filesCount;
+        return result;
+    }
+
 }
 

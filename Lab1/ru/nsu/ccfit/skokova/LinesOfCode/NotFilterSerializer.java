@@ -1,14 +1,20 @@
 package ru.nsu.ccfit.skokova.LinesOfCode;
 
 public class NotFilterSerializer implements FilterSerializer {
-    public NotFilter parseFilter(String line) {
-        String forParse = line.substring(2, line.length() - 1);
-        NotFilter result = null;
-        try {
-            result = new NotFilter(FilterFactory.getInstance().createFilterSerializer(forParse).parseFilter(forParse));
-        } catch (InstantiationException | IllegalAccessException e) {
-        System.out.println("Oops"); //TODO
-    }
-        return result;
-    }
+	static {
+		FilterFactory.creators.put("!", NotFilterSerializer.class);
+	}
+
+	public NotFilter parseFilter(String line) throws FilterCreateException {
+		String forParse = line.trim().substring(2, line.length() - 1);
+		NotFilter result = null;
+		try {
+			result = new NotFilter(FilterFactory.getInstance().createFilterSerializer(forParse).parseFilter(forParse), line);
+		} catch (InstantiationException | IllegalAccessException e) {
+		    System.out.println("Oops"); //TODO
+	    } catch (IncorrectFilterTypeException e) {
+            System.err.println(e.getLocalizedMessage());
+        }
+		return result;
+	}
 }
