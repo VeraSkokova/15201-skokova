@@ -14,7 +14,7 @@ public class SimpleTest {
   @Test
   public void test() throws IOException {
     Controller controller = new Controller(dirName, configName);
-    controller.fillStatistics();
+	controller.fillStatisctics();
     Assert.assertEquals(0, controller.getStatistics().getStat().get(".cpp").getFilesCount());
     Assert.assertEquals(3, controller.getStatistics().getStat().get(".c").getFilesCount());
     Assert.assertEquals(15, controller.getStatistics().getStat().get(".c").getLinesCount());

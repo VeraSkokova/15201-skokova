@@ -11,7 +11,7 @@ public class ConfigParserTest {
   String configName = "./Testing/config.txt";
 
   @Test
-  public void test() {
+  public void test() throws IOException {
     ConfigParser configParser = new ConfigParser(configName);
     Assert.assertEquals(".h", configParser.getFilterStrings().get(0));
     Assert.assertEquals("     .c", configParser.getFilterStrings().get(1));
