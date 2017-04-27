@@ -28,8 +28,6 @@
           </jar>
         </target>
 
-        <target name="all" description="Do the build"  depends="LoC.jar"/>
-
     <target name="test.compile" depends="compile, make.dirs, LoC.jar">
        <mkdir dir="${test.build.dir}"/>
        <javac srcdir="${test.src.dir}" destdir="${test.build.dir}" includeantruntime="false">
@@ -49,6 +47,8 @@
            </batchtest>
        </junit>
     </target>
+
+    <target name="all" description="Do the build"  depends="LoC.jar, test"/>
 
         <target name="clean" description="clean up">
        <echo>I'm cleaning up.</echo>
