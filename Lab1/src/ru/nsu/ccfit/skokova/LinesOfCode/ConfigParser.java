@@ -28,7 +28,7 @@ public class ConfigParser {
             }
             temp = reader.readLine();
         }
-        hepler.close();
+        helper.close();
         reader.close();
     }
 }
