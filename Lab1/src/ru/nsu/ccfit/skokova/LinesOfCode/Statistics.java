@@ -34,6 +34,14 @@ class StatCounter {
         this.filesCount = 0;
     }
 
+    public void setLinesCount(int linesCount) {
+        this.linesCount = linesCount;
+    }
+
+    public void setFilesCount(int filesCount) {
+        this.filesCount = filesCount;
+    }
+
     public int getLinesCount() {
         return linesCount;
     }
@@ -46,6 +54,13 @@ class StatCounter {
     }
     public void incFilesCount() {
         this.filesCount++;
+    }
+
+    public void incLinesCount(int n) {
+        this.linesCount+=n;
+    }
+    public void incFilesCount(int n) {
+        this.filesCount+=n;
     }
 
     public void setToZero() {

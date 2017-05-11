@@ -45,21 +45,37 @@ public class Controller {
             throw new DirOpeningException("Can't open a a directory: " + file.getName());
         }
         for (File f : files) {
+            int linesCount = 0;
             if (f.isDirectory() == true) {
                 countLines(f.getAbsolutePath(), filters);
                 continue;
             }
             else  {
+                boolean firstOpened = true;
                 for (FilterHolder filter : filters) {
                     if (filter.getFilter().check(f.getAbsolutePath())) {
-                        filter.getStatCounter().incFilesCount();
-                        FileReader helper = new FileReader(f);
-                        BufferedReader reader = new BufferedReader(helper);
-                        while (reader.readLine() != null) {
-                            filter.getStatCounter().incLinesCount();
+                        if (firstOpened) {
+                            filter.getStatCounter().incFilesCount();
+                            FileReader helper = new FileReader(f);
+                            BufferedReader reader = new BufferedReader(helper);
+                            while (reader.readLine() != null) {
+                                linesCount++;
+                            }
+                            helper.close();
+                            reader.close();
+                            filter.getStatCounter().incLinesCount(linesCount);
+                            firstOpened = false;
+                        } else {
+                            filter.getStatCounter().incFilesCount();
+                            filter.getStatCounter().incLinesCount(linesCount);
+                            /*FileReader helper = new FileReader(f);
+                            BufferedReader reader = new BufferedReader(helper);
+                            while (reader.readLine() != null) {
+                                filter.getStatCounter().incLinesCount();
+                            }
+                            helper.close();
+                            reader.close();*/
                         }
-                        helper.close();
-                        reader.close();
                     }
                 }
             }
@@ -187,7 +203,7 @@ class PrintComparator implements Comparator<PrintHelper> {
         } else if (second.getFilterName().equals("Total")) {
             return 1;
         } else {
-            return first.getStatCounter().getFilesCount() - second.getStatCounter().getFilesCount();
+            return second.getStatCounter().getFilesCount() - first.getStatCounter().getFilesCount();
         }
     }
 }
