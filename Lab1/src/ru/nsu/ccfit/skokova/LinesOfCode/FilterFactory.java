@@ -8,12 +8,6 @@ public class FilterFactory {
 
     static {
         creators = new HashMap<>();
-        /*FilterFactory.creators.put("&", AndFilterSerializer.class);
-        FilterFactory.creators.put("<", EarlierTimeFilterSerializer.class);
-        FilterFactory.creators.put(".", ExtentionFilterSerializer.class);
-        FilterFactory.creators.put(">", LaterTimeFilterSerializer.class);
-        FilterFactory.creators.put("!", NotFilterSerializer.class);
-        FilterFactory.creators.put("|", OrFilterSerializer.class);*/
     }
 
     private static FilterFactory instance;
