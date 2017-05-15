@@ -68,13 +68,6 @@ public class Controller {
                         } else {
                             filter.getStatCounter().incFilesCount();
                             filter.getStatCounter().incLinesCount(linesCount);
-                            /*FileReader helper = new FileReader(f);
-                            BufferedReader reader = new BufferedReader(helper);
-                            while (reader.readLine() != null) {
-                                filter.getStatCounter().incLinesCount();
-                            }
-                            helper.close();
-                            reader.close();*/
                         }
                     }
                 }
@@ -219,9 +212,3 @@ class FilterCreateException extends Exception {
         super(message);
     }
 }
-
-
-
-
-
-

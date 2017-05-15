@@ -35,8 +35,6 @@ public class Main {
         if (args.length != 2) {
             printUsage();
         } else {
-        //String dirPath = "/home/veraskokova/Документы/Testing1";
-        //String configFile = "/home/veraskokova/Документы/Testing1/config.txt";
             String dirPath = args[1];
             String configFile = args[0];
             Controller controller = new Controller(dirPath, configFile);
