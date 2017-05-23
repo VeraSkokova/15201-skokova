@@ -49,20 +49,13 @@ public class Controller {
             if (f.isDirectory() == true) {
                 countLines(f.getAbsolutePath(), filters);
                 continue;
-            }
-            else  {
+            } else {
                 boolean firstOpened = true;
                 for (FilterHolder filter : filters) {
                     if (filter.getFilter().check(f.getAbsolutePath())) {
                         if (firstOpened) {
                             filter.getStatCounter().incFilesCount();
-                            FileReader helper = new FileReader(f);
-                            BufferedReader reader = new BufferedReader(helper);
-                            while (reader.readLine() != null) {
-                                linesCount++;
-                            }
-                            helper.close();
-                            reader.close();
+                            linesCount = countLinesInFile(f);
                             filter.getStatCounter().incLinesCount(linesCount);
                             firstOpened = false;
                         } else {
@@ -77,6 +70,26 @@ public class Controller {
             this.statistics.putInStatistics(filterHolder.getFilter().toString(), filterHolder.getStatCounter());
         }
     }
+
+
+    private int countLinesInFile(File file) throws IOException {
+        int count = 0;
+        int readChars = 0;
+        boolean empty = true;
+        try (InputStream is = new BufferedInputStream(new FileInputStream(file))) {
+            byte[] c = new byte[1024];
+            while ((readChars = is.read(c)) != -1) {
+                empty = false;
+                for (int i = 0; i < readChars; ++i) {
+                    if (c[i] == '\n') {
+                        ++count;
+                    }
+                }
+            }
+        }
+        return (count == 0 && !empty) ? 1 : count;
+    }
+
 
     private boolean isEmptyAgregateFilter(Filter filter) {
         String filterName = filter.getClass().getSimpleName();
@@ -108,7 +121,9 @@ public class Controller {
                     filter = filterSerializer.parseFilter(fs.trim());
                     if (this.isEmptyAgregateFilter(filter) == false) {
                         FilterHolder filterHolder = new FilterHolder(filter);
-                        filters.add(filterHolder);
+                        if (!filters.contains(filterHolder)) {
+                            filters.add(filterHolder);
+                        }
                     }
                 } catch (IncorrectFilterTypeException e) {
                     System.err.println(e.getMessage());
@@ -167,6 +182,10 @@ class FilterHolder {
 
     public StatCounter getStatCounter() {
         return statCounter;
+    }
+
+    public boolean equals(FilterHolder o) {
+        return (this.filter == o.filter);
     }
 }
 

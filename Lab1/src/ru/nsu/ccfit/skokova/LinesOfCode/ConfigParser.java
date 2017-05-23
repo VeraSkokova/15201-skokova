@@ -19,16 +19,15 @@ public class ConfigParser {
         this.configFileName = fileName;
         this.filterStrings = new ArrayList<>(0);
         File file = new File(this.configFileName);
-        FileReader helper = new FileReader(file);
-        BufferedReader reader = new BufferedReader(helper);
-        String temp = reader.readLine();
-        while (temp != null) {
-            if (!Objects.equals(temp, "")) {
-                this.filterStrings.add(temp);
+        try (FileReader helper = new FileReader(file);
+             BufferedReader reader = new BufferedReader(helper)) {
+            String temp = reader.readLine();
+            while (temp != null) {
+                if (!Objects.equals(temp, "")) {
+                    this.filterStrings.add(temp);
+                }
+                temp = reader.readLine();
             }
-            temp = reader.readLine();
         }
-        helper.close();
-        reader.close();
     }
 }

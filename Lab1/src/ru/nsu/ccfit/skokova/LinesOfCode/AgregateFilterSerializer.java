@@ -36,6 +36,7 @@ public abstract class AgregateFilterSerializer implements FilterSerializer {
         int bracesCount = 0;
         int begin = 0;
         int end = 0;
+        boolean firstSapce = true;
         for (int i = 0; i < cutLine.length(); i++) {
             if (cutLine.charAt(i) == '(') {
                 bracesCount++;
@@ -43,10 +44,18 @@ public abstract class AgregateFilterSerializer implements FilterSerializer {
             if (cutLine.charAt(i) == ')') {
                 bracesCount--;
             }
-            if (((cutLine.charAt(i) == ' ') && (bracesCount == 0))) {
+            if ((!firstSapce) && (cutLine.charAt(i) == ' ')) {
+                end++;
+                begin++;
+            }
+            if ((cutLine.charAt(i) == ' ') && (bracesCount == 0) && (firstSapce)) {
                 end = i;
                 filterStrings.add(cutLine.substring(begin, end));
                 begin = end + 1;
+                firstSapce = false;
+            }
+            if ((!firstSapce) && (cutLine.charAt(i) != ' ')) {
+                firstSapce = true;
             }
             if (i == cutLine.length() - 1) {
                 filterStrings.add(cutLine.substring(begin));
