@@ -21,4 +21,19 @@ public class NotFilter implements Filter {
     public String toString() {
         return this.filterString;
     }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        NotFilter notFilter = (NotFilter) o;
+
+        return filter.equals(notFilter.filter);
+    }
+
+    @Override
+    public int hashCode() {
+        return filter.hashCode();
+    }
 }

@@ -23,4 +23,19 @@ public class ExtentionFilter implements Filter {
     public String toString() {
         return extension;
     }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        ExtentionFilter that = (ExtentionFilter) o;
+
+        return extension != null ? extension.equals(that.extension) : that.extension == null;
+    }
+
+    @Override
+    public int hashCode() {
+        return extension != null ? extension.hashCode() : 0;
+    }
 }

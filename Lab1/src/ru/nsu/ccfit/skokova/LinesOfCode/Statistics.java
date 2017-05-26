@@ -6,10 +6,15 @@ import java.util.Map;
 public class Statistics {
     private Map<String, StatCounter> stat;
     private int filtersCount;
+    private int totalLinesCount;
+    private int totalFilesCount;
+
 
     public Statistics() {
         this.stat = new HashMap<>();
         this.filtersCount = 0;
+        this.totalLinesCount = 0;
+        this.totalFilesCount = 0;
     }
 
     public Map<String, StatCounter> getStat() {
@@ -22,6 +27,30 @@ public class Statistics {
 
     public void putInStatistics(String filterName, StatCounter counts) {
         this.stat.put(filterName, counts);
+    }
+
+    public int getTotalLinesCount() {
+        return totalLinesCount;
+    }
+
+    public int getTotalFilesCount() {
+        return totalFilesCount;
+    }
+
+    public void setTotalLinesCount(int totalLinesCount) {
+        this.totalLinesCount = totalLinesCount;
+    }
+
+    public void setTotalFilesCount(int totalFilesCount) {
+        this.totalFilesCount = totalFilesCount;
+    }
+
+    public void incTotalLinesCount(int n) {
+        this.totalLinesCount += n;
+    }
+
+    public void incTotalFilesCount() {
+        this.totalFilesCount++;
     }
 }
 

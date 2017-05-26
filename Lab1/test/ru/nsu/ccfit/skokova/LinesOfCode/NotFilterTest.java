@@ -30,8 +30,8 @@ public class NotFilterTest {
     Assert.assertEquals(3, controller.getStatistics().getStat().get("!(.c)").getLinesCount());
     Assert.assertEquals(8, controller.getStatistics().getStat().get("!(&(.h >1400000000))").getLinesCount());
     Assert.assertEquals(2, controller.getStatistics().getStat().get("!(&(.h >1400000000))").getFilesCount());
-    Assert.assertEquals(3, controller.getStatistics().getStat().get("Total").getFilesCount());
-    Assert.assertEquals(9, controller.getStatistics().getStat().get("Total").getLinesCount());
+    Assert.assertEquals(3, controller.getStatistics().getTotalFilesCount());
+    Assert.assertEquals(9, controller.getStatistics().getTotalLinesCount());
     System.out.println("TEST NotFilterTest PASSED");
   }
 }

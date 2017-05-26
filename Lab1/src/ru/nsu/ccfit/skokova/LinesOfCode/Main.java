@@ -5,7 +5,7 @@ import java.io.*;
 public class Main {
     static void printUsage() {
         try {
-            File file = new File("../src/Usage.txt");
+            File file = new File("/home/veraskokova/Документы/Testing/Usage.txt");
             FileReader helper = new FileReader(file);
             BufferedReader reader = new BufferedReader(helper);
             String temp = reader.readLine();
@@ -40,12 +40,13 @@ public class Main {
             Controller controller = new Controller(dirPath, configFile);
             try {
                 controller.fillStatisctics();
-                controller.printStatistics();
+                StatPrinter statPrinter = new StatPrinter(controller.getStatistics());
+                statPrinter.printStatistics();
+                //controller.printStatistics();
             } catch (IOException e) {
                 System.err.println("Something went wrong: " + e.getMessage());
             }
         }
-
     }
 
 }

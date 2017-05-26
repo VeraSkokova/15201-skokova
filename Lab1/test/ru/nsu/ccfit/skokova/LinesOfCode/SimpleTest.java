@@ -29,8 +29,8 @@ public class SimpleTest {
     Assert.assertEquals(0, controller.getStatistics().getStat().get(".cpp").getFilesCount());
     Assert.assertEquals(3, controller.getStatistics().getStat().get(".c").getFilesCount());
     Assert.assertEquals(15, controller.getStatistics().getStat().get(".c").getLinesCount());
-    Assert.assertEquals(5, controller.getStatistics().getStat().get("Total").getFilesCount());
-    Assert.assertEquals(33, controller.getStatistics().getStat().get("Total").getLinesCount());
+    Assert.assertEquals(5, controller.getStatistics().getTotalFilesCount());
+    Assert.assertEquals(33, controller.getStatistics().getTotalLinesCount());
     Assert.assertEquals(0, controller.getStatistics().getStat().get(".java").getFilesCount());
     Assert.assertEquals(5, controller.getStatistics().getStat().get(">1400000000").getFilesCount());
     Assert.assertEquals(33, controller.getStatistics().getStat().get(">1400000000").getLinesCount());
