@@ -4,9 +4,9 @@ public class AccessorySupplier implements Runnable {
     private int periodicity;
     private Storage<Accessory> storage;
 
-    public AccessorySupplier(int p, Storage s) {
-        this.periodicity = p;
-        this.storage = s;
+    public AccessorySupplier(int periodicity, Storage<Accessory> storage) {
+        this.periodicity = periodicity;
+        this.storage = storage;
     }
 
     @Override
@@ -19,7 +19,7 @@ public class AccessorySupplier implements Runnable {
                 System.out.println("I've put an accessory #" + accessory.getId());
             }
         } catch (InterruptedException e) {
-            System.out.println("Oops");
+            System.out.println("Oops"); //TODO
         }
     }
 }

@@ -4,9 +4,9 @@ public class BodySupplier implements Runnable {
     private int periodicity;
     private Storage<Body> storage;
 
-    public BodySupplier(int p, Storage s) {
-        this.periodicity = p;
-        this.storage = s;
+    public BodySupplier(int periodicity, Storage<Body> storage) {
+        this.periodicity = periodicity;
+        this.storage = storage;
     }
 
     @Override
@@ -19,7 +19,7 @@ public class BodySupplier implements Runnable {
                 System.out.println("I've put a body #" + body.getId());
             }
         } catch (InterruptedException e) {
-            System.out.println("Oops");
+            System.out.println("Oops"); //TODO
         }
     }
 }

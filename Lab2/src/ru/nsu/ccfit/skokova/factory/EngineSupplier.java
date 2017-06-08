@@ -4,9 +4,9 @@ public class EngineSupplier implements Runnable {
     private int periodicity;
     private Storage<Engine> storage;
 
-    public EngineSupplier(int p, Storage s) {
-        this.periodicity = p;
-        this.storage = s;
+    public EngineSupplier(int periodicity, Storage<Engine> storage) {
+        this.periodicity = periodicity;
+        this.storage = storage;
     }
 
     @Override
@@ -19,7 +19,11 @@ public class EngineSupplier implements Runnable {
                 System.out.println("I've put an engine #" + engine.getId());
             }
         } catch (InterruptedException e) {
-            System.out.println("Oops");
+            System.out.println("Caught");
+            Thread.currentThread().interrupt();
+        }
+        if (Thread.currentThread().isInterrupted()) {
+            System.out.println("Engine supplier was interrupted");
         }
     }
 }
