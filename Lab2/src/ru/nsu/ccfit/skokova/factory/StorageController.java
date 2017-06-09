@@ -2,14 +2,14 @@ package ru.nsu.ccfit.skokova.factory;
 
 import ru.nsu.ccfit.skokova.threadpool.ThreadPool;
 
-public class Controller implements Runnable{
+public class StorageController implements Runnable{
     private Storage<Engine> engineStorage;
     private Storage<Body> bodyStorage;
     private Storage<Accessory> accessoryStorage;
     private CarStorage carStorage;
     private ThreadPool threadPool;
 
-    public Controller(Storage<Engine> engineStorage, Storage<Body> bodyStorage, Storage<Accessory> accessoryStorage, CarStorage carStorage, ThreadPool threadPool) {
+    public StorageController(Storage<Engine> engineStorage, Storage<Body> bodyStorage, Storage<Accessory> accessoryStorage, CarStorage carStorage, ThreadPool threadPool) {
         this.engineStorage = engineStorage;
         this.bodyStorage = bodyStorage;
         this.accessoryStorage = accessoryStorage;

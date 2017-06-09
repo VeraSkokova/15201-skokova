@@ -1,8 +1,13 @@
 package ru.nsu.ccfit.skokova.factory;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
 public class BodySupplier implements Runnable {
     private int periodicity;
     private Storage<Body> storage;
+
+    private static final Logger logger = LogManager.getLogger(BodySupplier.class);
 
     public BodySupplier(int periodicity, Storage<Body> storage) {
         this.periodicity = periodicity;
@@ -16,10 +21,9 @@ public class BodySupplier implements Runnable {
                 Thread.sleep(periodicity);
                 Body body = new Body();
                 this.storage.put(body);
-                System.out.println("I've put a body #" + body.getId());
             }
         } catch (InterruptedException e) {
-            System.out.println("Oops"); //TODO
+            logger.warn("BodySupplier was interrupted");
         }
     }
 }

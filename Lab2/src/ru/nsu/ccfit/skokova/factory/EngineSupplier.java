@@ -1,8 +1,13 @@
 package ru.nsu.ccfit.skokova.factory;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
 public class EngineSupplier implements Runnable {
     private int periodicity;
     private Storage<Engine> storage;
+
+    private static final Logger logger = LogManager.getLogger(EngineSupplier.class);
 
     public EngineSupplier(int periodicity, Storage<Engine> storage) {
         this.periodicity = periodicity;
@@ -16,14 +21,9 @@ public class EngineSupplier implements Runnable {
                 Thread.sleep(periodicity);
                 Engine engine = new Engine();
                 this.storage.put(engine);
-                System.out.println("I've put an engine #" + engine.getId());
             }
         } catch (InterruptedException e) {
-            System.out.println("Caught");
-            Thread.currentThread().interrupt();
-        }
-        if (Thread.currentThread().isInterrupted()) {
-            System.out.println("Engine supplier was interrupted");
+            logger.warn("EngineSupplier was interrupted");
         }
     }
 }

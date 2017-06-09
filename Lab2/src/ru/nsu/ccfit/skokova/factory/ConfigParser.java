@@ -26,6 +26,20 @@ public class ConfigParser {
         configPairs.add(new ConfigPair(0, "TaskQueueSize"));
     }
 
+    static final int ENGINE_STORAGE_SIZE = 0;
+    static final int BODY_STORAGE_SIZE = 1;
+    static final int ACCESSORY_STORAGE_SIZE = 2;
+    static final int CAR_STORAGE_SIZE = 3;
+    static final int ACCESSORY_SUPPLIERS_COUNT = 4;
+    static final int WORKERS_SUPPLIERS_COUNT = 5;
+    static final int DEALERS_COUNT = 6;
+    static final int ENGINE_SUPPLIER_PERIODICITY = 7;
+    static final int BODY_SUPPLIER_PERIODICITY = 8;
+    static final int ACCESSORY_SUPPLIER_PERIODICITY = 9;
+    static final int DEALERS_PERIODICITY = 10;
+    static final int TASK_QUEUE_SIZE = 11;
+
+
     private static ArrayList<String> getFields() {
         ArrayList<String> result = new ArrayList<>();
         for (ConfigPair configPair : configPairs) {

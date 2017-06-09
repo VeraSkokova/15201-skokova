@@ -1,10 +1,15 @@
 package ru.nsu.ccfit.skokova.factory;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
 public class Worker implements Runnable{
     private Storage<Engine> engineStorage;
     private Storage<Body> bodyStorage;
     private Storage<Accessory> accessoryStorage;
     private CarStorage carStorage;
+
+    private static final Logger logger = LogManager.getLogger(Worker.class);
 
     public Worker(Storage<Engine> engineStorage, Storage<Body> bodyStorage, Storage<Accessory> accessoryStorage, CarStorage carStorage) {
         this.engineStorage = engineStorage;
@@ -22,11 +27,9 @@ public class Worker implements Runnable{
                 Accessory accessory = (Accessory) accessoryStorage.get();
                 Car car = new Car(engine, body, accessory);
                 carStorage.put(car);
-                System.out.println("Worker made a car #" + car.getId() + "( body #" + car.getBody().getId() +
-                        " engine #" + car.getEngine().getId() + " accessory #" + car.getAccessory().getId() + ")");
             }
         } catch (InterruptedException e) {
-            System.out.println("Oops"); //TODO
+            logger.warn("Worker was interrupted");
         }
     }
 }

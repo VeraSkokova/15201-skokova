@@ -1,8 +1,13 @@
 package ru.nsu.ccfit.skokova.threadpool;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
 public class PoolThreadRunnable implements Runnable {
     private BlockingQueue<Runnable> taskQueue;
     private boolean isStopped;
+
+    private static final Logger logger = LogManager.getLogger(PoolThreadRunnable.class);
 
     public PoolThreadRunnable(BlockingQueue<Runnable> taskQueue) {
         this.taskQueue = taskQueue;
@@ -16,7 +21,7 @@ public class PoolThreadRunnable implements Runnable {
                 taskQueue.dequeue().run();
             }
         } catch (InterruptedException e) {
-            System.out.println("Oops"); //TODO
+            logger.warn("Worker was interrupted");
         }
     }
 

@@ -1,11 +1,16 @@
 package ru.nsu.ccfit.skokova.threadpool;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
 import java.util.ArrayList;
 
 public class ThreadPool {
     private int size;
     private BlockingQueue<Runnable> taskQueue;
     private ArrayList<Thread> threads;
+
+    private static final Logger logger = LogManager.getLogger(ThreadPool.class);
 
     public ThreadPool(int size, int queueSize) {
         this.size = size;
@@ -22,7 +27,7 @@ public class ThreadPool {
         try {
             this.taskQueue.enqueue(task);
         } catch (InterruptedException e) {
-            System.out.println("Oops"); //TODO
+            logger.warn("Can't add new task");
         }
     }
 
