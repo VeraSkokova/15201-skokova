@@ -1,0 +1,13 @@
+EngineStorageSize=1
+BodyStorageSize = 1
+   AccessoryStorageSize   =   1
+CarStorageSize=1
+AccessorySuppliersCount=3
+WorkersCount=2
+DealersCount=2
+EngineSupplierPeriodicity=0
+BodySupplierPeriodicity=0
+AccessorySupplierPeriodicity=0
+DealersPeriodicity=0
+TaskQueueSize=20
+EnableLog = true

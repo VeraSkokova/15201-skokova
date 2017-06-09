@@ -1,0 +1,44 @@
+<project name="LoC" default="all" >
+  <property name="main.build.dir" value="build/main"/>
+  <property name="main.src.dir" value="src"/>
+  <property name="test.build.dir" value="build/test"/>
+  <property name="lib.dir" location="lib"/>
+  <property name="test.src.dir" value="test"/>
+
+<path id="classpath.test">
+   <pathelement location="lib/junit-4.12.jar"/>
+   <pathelement location="lib/hamcrest-core-1.3.jar"/>
+   <pathelement location="lib/log4j-api-2.8.2.jar"/>
+   <pathelement location="lib/log4j-core-2.8.2.jar"/>
+   <pathelement location="${main.build.dir}"/>
+   <pathelement location="${test.build.dir}"/>
+</path>
+
+<target name="make.dirs" description="Make some dirs">
+      <mkdir dir="build"/>
+      <mkdir dir="build/main"/>
+       </target>
+
+       <target name="compile" description="compile java"  depends="make.dirs">
+        <javac srcdir="${main.src.dir}" destdir="${main.build.dir}" includeantruntime="false">
+          <classpath refid="classpath.test"/>
+      </javac>
+       </target>
+
+       <target name="Factory.jar" description="make jar file" depends="compile">
+          <jar jarfile="Factory.jar" basedir="build/main">
+            <zipgroupfileset dir="${lib.dir}" includes="*.jar" />
+              <manifest>
+                  <attribute name="Main-Class" value="ru.nsu.ccfit.skokova.factory.Main" />
+              </manifest>
+         </jar>
+</target>
+
+<target name="all" description="Do the build"  depends="Factory.jar"/>
+
+      <target name="clean" description="clean up">
+     <echo>I'm cleaning up.</echo>
+     <delete dir="build"/>
+      </target>
+
+</project>

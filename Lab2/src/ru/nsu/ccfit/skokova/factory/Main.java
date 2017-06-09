@@ -6,17 +6,25 @@ import java.io.IOException;
 import java.util.ArrayList;
 
 public class Main {
+    static {
+        System.getProperties().setProperty("log4j.configurationFile", "src/log4j2.xml");
+    }
+
     public static void main(String[] args) {
         try {
-            String name = "/home/veraskokova/Документы/MyConfig.txt";
-            ConfigParser configParser= new ConfigParser(name);
+            if (args.length != 1) {
+              System.out.println("Add configuration file");
+            } else {
+              String name = args[0];
+              ConfigParser configParser= new ConfigParser(name);
 
-            FactoryController factoryController = new FactoryController(configParser);
-            factoryController.runFactory();
+              FactoryController factoryController = new FactoryController(configParser);
+              factoryController.runFactory();
 
-            Thread.sleep(10);
+              Thread.sleep(10);
 
-            factoryController.interruptFactory();
+              factoryController.interruptFactory();
+          }
 
 
         } catch (IOException | InterruptedException e) {
