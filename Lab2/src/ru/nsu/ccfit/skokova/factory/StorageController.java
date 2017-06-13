@@ -1,5 +1,7 @@
 package ru.nsu.ccfit.skokova.factory;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import ru.nsu.ccfit.skokova.threadpool.ThreadPool;
 
 public class StorageController implements Runnable{
@@ -9,6 +11,8 @@ public class StorageController implements Runnable{
     private CarStorage carStorage;
     private ThreadPool threadPool;
 
+    private Logger logger = LogManager.getLogger(StorageController.class);
+
     public StorageController(Storage<Engine> engineStorage, Storage<Body> bodyStorage, Storage<Accessory> accessoryStorage, CarStorage carStorage, ThreadPool threadPool) {
         this.engineStorage = engineStorage;
         this.bodyStorage = bodyStorage;
@@ -17,11 +21,11 @@ public class StorageController implements Runnable{
         this.threadPool = threadPool;
     }
 
-    private void makeCar() {
+    private void makeCar() throws InterruptedException {
         this.threadPool.addTask(new Worker(this.engineStorage, this.bodyStorage, this.accessoryStorage, this.carStorage));
     }
 
-    private synchronized void makeNewCars() {
+    private synchronized void makeNewCars() throws InterruptedException{
         int count = this.carStorage.getSize() - this.carStorage.getCars().getSize();
         for (int i = 0; i < count; i++) {
             this.makeCar();
@@ -30,8 +34,12 @@ public class StorageController implements Runnable{
 
     @Override
     public void run() {
-        while (!Thread.interrupted()) {
-            this.makeNewCars();
+        try {
+            while (true) {
+                this.makeNewCars();
+            }
+        } catch (InterruptedException e) {
+            logger.warn("StorageController was interrupted");
         }
     }
 

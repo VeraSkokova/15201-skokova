@@ -20,6 +20,10 @@ public class AccessorySupplier implements Runnable {
         return id;
     }
 
+    public void setPeriodicity(int periodicity) {
+        this.periodicity = periodicity;
+    }
+
     @Override
     public void run() {
         try {
@@ -27,9 +31,11 @@ public class AccessorySupplier implements Runnable {
                 Thread.sleep(periodicity);
                 Accessory accessory = new Accessory();
                 this.storage.put(accessory);
+                //logger.info("AccessorySupplier #" + this.getId() + " put an accessory #" + accessory.getId());
             }
         } catch (InterruptedException e) {
             logger.warn("AccessorySupplier #" + this.getId() + " was interrupted");
+            Thread.currentThread().interrupt();
         }
     }
 }

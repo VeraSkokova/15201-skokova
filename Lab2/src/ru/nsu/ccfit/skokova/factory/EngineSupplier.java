@@ -14,6 +14,10 @@ public class EngineSupplier implements Runnable {
         this.storage = storage;
     }
 
+    public void setPeriodicity(int periodicity) {
+        this.periodicity = periodicity;
+    }
+
     @Override
     public void run() {
         try {
@@ -21,6 +25,7 @@ public class EngineSupplier implements Runnable {
                 Thread.sleep(periodicity);
                 Engine engine = new Engine();
                 this.storage.put(engine);
+                //logger.info("EngineSupplier put an engine #" + engine.getId());
             }
         } catch (InterruptedException e) {
             logger.warn("EngineSupplier was interrupted");

@@ -1,33 +1,35 @@
 package ru.nsu.ccfit.skokova.factory;
 
+import ru.nsu.ccfit.skokova.factory.gui.CreateAndShowGUI;
+import ru.nsu.ccfit.skokova.factory.gui.FactoryButtons;
+import ru.nsu.ccfit.skokova.factory.gui.FactoryInformer;
+import ru.nsu.ccfit.skokova.factory.gui.FactoryRegulator;
 import ru.nsu.ccfit.skokova.threadpool.ThreadPool;
 
+import javax.swing.*;
+import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.io.IOException;
 import java.util.ArrayList;
 
 public class Main {
-    static {
-        System.getProperties().setProperty("log4j.configurationFile", "src/log4j2.xml");
-    }
-
     public static void main(String[] args) {
         try {
-            if (args.length != 1) {
-              System.out.println("Add configuration file");
-            } else {
-              String name = args[0];
-              ConfigParser configParser= new ConfigParser(name);
+            String name = "/home/veraskokova/Документы/MyConfig.txt";
+            ConfigParser configParser= new ConfigParser(name);
 
-              FactoryController factoryController = new FactoryController(configParser);
-              factoryController.runFactory();
+            FactoryController factoryController = new FactoryController(configParser);
 
-              Thread.sleep(10);
+            Controller controller = new Controller(factoryController);
 
-              factoryController.interruptFactory();
-          }
+            //factoryController.runFactory();
 
+            //Thread.sleep(19000);
 
-        } catch (IOException | InterruptedException e) {
+            //factoryController.interruptFactory();
+
+        } catch (IOException e) {
             e.printStackTrace();
         }
 

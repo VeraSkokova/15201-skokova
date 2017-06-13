@@ -14,6 +14,10 @@ public class BodySupplier implements Runnable {
         this.storage = storage;
     }
 
+    public void setPeriodicity(int periodicity) {
+        this.periodicity = periodicity;
+    }
+
     @Override
     public void run() {
         try {
@@ -21,6 +25,7 @@ public class BodySupplier implements Runnable {
                 Thread.sleep(periodicity);
                 Body body = new Body();
                 this.storage.put(body);
+                //logger.info("BodySupplier put a body #" + body.getId());
             }
         } catch (InterruptedException e) {
             logger.warn("BodySupplier was interrupted");

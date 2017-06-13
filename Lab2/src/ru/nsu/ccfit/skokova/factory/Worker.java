@@ -18,6 +18,7 @@ public class Worker implements Runnable{
         this.carStorage = carStorage;
     }
 
+
     @Override
     public void run() {
         try {
@@ -25,11 +26,16 @@ public class Worker implements Runnable{
                 Engine engine = (Engine) engineStorage.get();
                 Body body = (Body) bodyStorage.get();
                 Accessory accessory = (Accessory) accessoryStorage.get();
+                //logger.info(Thread.currentThread().getName() + "got an engine #" + engine.getId());
+                //logger.info(Thread.currentThread().getName() + "got a body #" + body.getId());
+                //logger.info(Thread.currentThread().getName() + "got an accessory #" + accessory.getId());
                 Car car = new Car(engine, body, accessory);
                 carStorage.put(car);
+                //logger.info(Thread.currentThread().getName() + "put a car#" + car.getId());
             }
         } catch (InterruptedException e) {
-            logger.warn("Worker was interrupted");
+            logger.warn( Thread.currentThread().getName() + " was interrupted");
+            Thread.currentThread().interrupt();
         }
     }
 }

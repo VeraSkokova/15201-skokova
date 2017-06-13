@@ -18,17 +18,13 @@ public class ThreadPool {
         threads = new ArrayList<>();
         for (int i = 0; i < size; i++) {
             Thread temp = new Thread(new PoolThreadRunnable(taskQueue));
-            temp.setName("Worker");
+            temp.setName("Worker #" + i);
             threads.add(temp);
         }
     }
 
-    public synchronized void addTask(Runnable task) {
-        try {
-            this.taskQueue.enqueue(task);
-        } catch (InterruptedException e) {
-            logger.warn("Can't add new task");
-        }
+    public synchronized void addTask(Runnable task) throws InterruptedException {
+        this.taskQueue.enqueue(task);
     }
 
     public synchronized void interrupt() {

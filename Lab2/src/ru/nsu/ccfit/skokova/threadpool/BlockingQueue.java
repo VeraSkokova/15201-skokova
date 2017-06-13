@@ -1,18 +1,19 @@
 package ru.nsu.ccfit.skokova.threadpool;
 
 import java.util.ArrayList;
+import java.util.LinkedList;
 
 public class BlockingQueue<T> {
     private int limit;
-    private ArrayList<T> list;
+    private LinkedList<T> list;
 
     public BlockingQueue() {
-        list = new ArrayList<T>();
+        list = new LinkedList<>();
     }
 
     public BlockingQueue(int l) {
         this.limit = l;
-        list = new ArrayList<>();
+        list = new LinkedList<>();
     }
 
     public synchronized void enqueue(T element) throws InterruptedException {
@@ -29,8 +30,7 @@ public class BlockingQueue<T> {
             wait();
         }
 
-        T element = this.list.get(0);
-        this.list.remove(0);
+        T element = this.list.remove();
         notifyAll();
         return element;
     }
@@ -39,7 +39,11 @@ public class BlockingQueue<T> {
         return limit;
     }
 
-    public int getSize() {
+    public synchronized int getSize() {
         return this.list.size();
+    }
+
+    public LinkedList<T> getList() {
+        return list;
     }
 }
