@@ -19,33 +19,26 @@ public class Main {
 
     private static Logger logger = LogManager.getLogger(Main.class);
 
-    /*static {
+    static {
         System.getProperties().setProperty("log4j.configurationFile", "src/log4j2.xml");
-    }*/
+    }
 
     public static void main(String[] args) {
         try {
-            //if (args.length != 1) {
-            //    System.out.println("Add configuration file");
-            //} else {
-                //String name = args[0];
-                //ConfigParser configParser = new ConfigParser(name);
-                String name = "/home/veraskokova/Документы/MyConfig.txt";
+            if (args.length != 1) {
+                System.out.println("Add configuration file");
+            } else {
+                String name = args[0];
                 ConfigParser configParser = new ConfigParser(name);
 
                 FactoryController factoryController = new FactoryController(configParser);
 
                 Controller controller = new Controller(factoryController);
 
-                //factoryController.runFactory();
-
-                //Thread.sleep(19000);
-
-                //factoryController.interruptFactory();
 
             } catch(IOException | BadParseException | NumberFormatException e){
                 logger.error(e.getMessage());
             }
-        //}
+        }
     }
 }
