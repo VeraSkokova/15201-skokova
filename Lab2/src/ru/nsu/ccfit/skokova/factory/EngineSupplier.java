@@ -16,6 +16,7 @@ public class EngineSupplier implements Runnable {
 
     public void setPeriodicity(int periodicity) {
         this.periodicity = periodicity;
+        logger.info("EngineSupplier changed periodicity to " + periodicity);
     }
 
     @Override
@@ -25,7 +26,7 @@ public class EngineSupplier implements Runnable {
                 Thread.sleep(periodicity);
                 Engine engine = new Engine();
                 this.storage.put(engine);
-                //logger.info("EngineSupplier put an engine #" + engine.getId());
+                //logger.debug("EngineSupplier put an engine #" + engine.getId());
             }
         } catch (InterruptedException e) {
             logger.warn("EngineSupplier was interrupted");

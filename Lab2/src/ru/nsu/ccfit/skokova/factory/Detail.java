@@ -5,11 +5,6 @@ import java.util.concurrent.atomic.AtomicInteger;
 public abstract class Detail {
     protected int id;
 
-
-    //public Detail() {
-    //    this.id = ID.getAndIncrement();
-    //}
-
     public int getId() {
         return id;
     }

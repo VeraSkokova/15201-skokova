@@ -5,13 +5,13 @@ import org.apache.logging.log4j.Logger;
 
 public class PoolThreadRunnable implements Runnable {
     private BlockingQueue<Runnable> taskQueue;
-    private boolean isStopped;
+    private ThreadPool threadPool;
 
     private static final Logger logger = LogManager.getLogger(PoolThreadRunnable.class);
 
-    public PoolThreadRunnable(BlockingQueue<Runnable> taskQueue) {
+    public PoolThreadRunnable(BlockingQueue<Runnable> taskQueue, ThreadPool threadPool) {
         this.taskQueue = taskQueue;
-        this.isStopped = false;
+        this.threadPool = threadPool;
     }
 
     @Override
@@ -19,17 +19,10 @@ public class PoolThreadRunnable implements Runnable {
         try {
             while (!Thread.interrupted()) {
                 taskQueue.dequeue().run();
+                this.threadPool.notifyValueChanged(taskQueue.getSize());
             }
         } catch (InterruptedException e) {
             logger.warn("Worker was interrupted");
         }
-    }
-
-    public synchronized void stopTask() {
-        this.isStopped = true;
-    }
-
-    public synchronized boolean isStopped() {
-        return this.isStopped;
     }
 }

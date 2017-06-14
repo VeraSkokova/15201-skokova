@@ -1,78 +1,66 @@
 package ru.nsu.ccfit.skokova.factory;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
-import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 
 public class ConfigParser {
-    private static ArrayList<ConfigPair> configPairs = new ArrayList<>();
-    private boolean enableLogs;
     private String fileName;
 
+    static Map<String, Integer> map = new HashMap<>();
+    private boolean enableLogs;
+
+    private static Logger logger = LogManager.getLogger(ConfigParser.class);
+
     static {
-        configPairs.add(new ConfigPair(0, "EngineStorageSize"));
-        configPairs.add(new ConfigPair(0, "BodyStorageSize"));
-        configPairs.add(new ConfigPair(0, "AccessoryStorageSize"));
-        configPairs.add(new ConfigPair(0, "CarStorageSize"));
-        configPairs.add(new ConfigPair(0, "AccessorySuppliersCount"));
-        configPairs.add(new ConfigPair(0, "WorkersCount"));
-        configPairs.add(new ConfigPair(0, "DealersCount"));
-        configPairs.add(new ConfigPair(0, "EngineSupplierPeriodicity"));
-        configPairs.add(new ConfigPair(0, "BodySupplierPeriodicity"));
-        configPairs.add(new ConfigPair(0, "AccessorySupplierPeriodicity"));
-        configPairs.add(new ConfigPair(0, "DealersPeriodicity"));
-        configPairs.add(new ConfigPair(0, "TaskQueueSize"));
+        map.put("AccessoryStorageSize", 0);
+        map.put("BodyStorageSize", 0);
+        map.put("EngineStorageSize", 0);
+        map.put("CarStorageSize", 0);
+        map.put("AccessorySuppliersCount", 0);
+        map.put("WorkersCount", 0);
+        map.put("DealersCount", 0);
+        map.put("EngineSupplierPeriodicity", 0);
+        map.put("BodySupplierPeriodicity", 0);
+        map.put("AccessorySupplierPeriodicity", 0);
+        map.put("DealersPeriodicity", 0);
+        map.put("TaskQueueSize", 0);
     }
 
-    static final int ENGINE_STORAGE_SIZE = 0;
-    static final int BODY_STORAGE_SIZE = 1;
-    static final int ACCESSORY_STORAGE_SIZE = 2;
-    static final int CAR_STORAGE_SIZE = 3;
-    static final int ACCESSORY_SUPPLIERS_COUNT = 4;
-    static final int WORKERS_SUPPLIERS_COUNT = 5;
-    static final int DEALERS_COUNT = 6;
-    static final int ENGINE_SUPPLIER_PERIODICITY = 7;
-    static final int BODY_SUPPLIER_PERIODICITY = 8;
-    static final int ACCESSORY_SUPPLIER_PERIODICITY = 9;
-    static final int DEALERS_PERIODICITY = 10;
-    static final int TASK_QUEUE_SIZE = 11;
-
-
-    private static ArrayList<String> getFields() {
-        ArrayList<String> result = new ArrayList<>();
-        for (ConfigPair configPair : configPairs) {
-            result.add(configPair.getName());
-        }
-        result.add("EnableLog");
-        return result;
-    }
-
-    private void parseString(String string) {
-        int num = 0;
-        for (String s : ConfigParser.getFields()) {
-            if (string.startsWith(s)) {
-                String line = string.substring(string.indexOf(s) + s.length());
-                line = line.trim();
-                String anotherLine = line.substring(line.indexOf("=") + 1);
-                anotherLine = anotherLine.trim();
-                if (s.equals("EnableLog")) {
-                    enableLogs = Boolean.parseBoolean(anotherLine);
-                } else {
-                    ConfigParser.configPairs.get(num).setValue(Integer.parseInt(anotherLine));
-                }
-                break;
+    public void parseString(String str) throws BadParseException {
+        int indexOfEq = str.indexOf('=');
+        String line = str.substring(0, indexOfEq);
+        line = line.trim();
+        if (line.equals("EnableLog")) {
+            String numberLine = str.substring(indexOfEq + 1);
+            numberLine = numberLine.trim();
+            this.enableLogs = Boolean.parseBoolean(numberLine);
+        } else if (map.containsKey(line)) {
+            String numberLine = str.substring(indexOfEq + 1);
+            numberLine = numberLine.trim();
+            int val = Integer.parseInt(numberLine);
+            if (val < 0) {
+                logger.error("Error in parsing ConfigFile");
+                throw new BadParseException(line + " can't be " + val);
             }
-            num++;
+            map.put(line, val);
+        } else {
+            logger.error("Error in parsing ConfigFile");
+            throw new BadParseException("Unknown parameter" + line);
         }
     }
 
-    public ConfigParser(String fileName) throws IOException {
+    public ConfigParser(String fileName) throws IOException, BadParseException {
         this.fileName = fileName;
         File file = new File(this.fileName);
-        try (FileReader helper = new FileReader(file);
-             BufferedReader reader = new BufferedReader(helper)) {
+        try (FileReader str = new FileReader(file);
+             BufferedReader reader = new BufferedReader(str)) {
             String temp = reader.readLine();
             while (temp != null) {
                 temp = temp.trim();
@@ -82,35 +70,17 @@ public class ConfigParser {
         }
     }
 
-    public static ArrayList<ConfigPair> getConfigPairs() {
-        return configPairs;
-    }
-
     public boolean isEnableLogs() {
         return enableLogs;
     }
 
-
+    public static Map<String, Integer> getMap() {
+        return map;
+    }
 }
 
-class ConfigPair {
-    private int value;
-    private String name;
-
-    ConfigPair(int value, String name) {
-        this.value = value;
-        this.name = name;
-    }
-
-    public int getValue() {
-        return value;
-    }
-
-    String getName() {
-        return name;
-    }
-
-    void setValue(int value) {
-        this.value = value;
+class BadParseException extends Exception {
+    BadParseException(String message) {
+        super(message);
     }
 }

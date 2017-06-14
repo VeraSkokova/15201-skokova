@@ -4,12 +4,14 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import ru.nsu.ccfit.skokova.threadpool.ThreadPool;
 
-public class StorageController implements Runnable{
+public class StorageController implements Runnable {
     private Storage<Engine> engineStorage;
     private Storage<Body> bodyStorage;
     private Storage<Accessory> accessoryStorage;
     private CarStorage carStorage;
     private ThreadPool threadPool;
+
+    private final Object lock = new Object();
 
     private Logger logger = LogManager.getLogger(StorageController.class);
 
@@ -25,25 +27,35 @@ public class StorageController implements Runnable{
         this.threadPool.addTask(new Worker(this.engineStorage, this.bodyStorage, this.accessoryStorage, this.carStorage));
     }
 
-    private synchronized void makeNewCars() throws InterruptedException{
-        int count = this.carStorage.getSize() - this.carStorage.getCars().getSize();
+    private void makeNewCars() throws InterruptedException {
+        int count = this.carStorage.getCars().getLimit() - this.carStorage.getCars().getSize() - this.threadPool.getTaskQueue().getSize();
         for (int i = 0; i < count; i++) {
             this.makeCar();
         }
+        lock.wait();
     }
 
     @Override
     public void run() {
         try {
             while (true) {
-                this.makeNewCars();
+                synchronized (lock) {
+                    this.makeNewCars();
+                }
             }
         } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
             logger.warn("StorageController was interrupted");
         }
     }
 
     public ThreadPool getThreadPool() {
         return threadPool;
+    }
+
+    public void notifyStorageController() {
+        synchronized (lock) {
+            lock.notify();
+        }
     }
 }

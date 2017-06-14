@@ -9,6 +9,7 @@ public class CarStorage {
     private BlockingQueue<Car> cars;
     private final int size;
     private ArrayList<ValueChangedHandler> handlers = new ArrayList<>();
+    private StorageController storageController;
 
     public void addHandler(ValueChangedHandler handler) {
         if (handler != null) {
@@ -34,6 +35,7 @@ public class CarStorage {
 
     public Car get() throws InterruptedException {
         Car car =  this.cars.dequeue();
+        this.storageController.notifyStorageController();
         this.notifyValueChanged(this.cars.getSize());
         return car;
     }
@@ -44,5 +46,9 @@ public class CarStorage {
 
     public int getSize() {
         return size;
+    }
+
+    public void setStorageController(StorageController storageController) {
+        this.storageController = storageController;
     }
 }

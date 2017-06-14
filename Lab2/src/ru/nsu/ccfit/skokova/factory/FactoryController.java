@@ -29,14 +29,34 @@ public class FactoryController {
     private StorageController storageController;
     private Thread storageControllerThread;
 
+    private ThreadPool threadPool;
+
+    private Logger logger = LogManager.getLogger(FactoryController.class);
+
     private boolean canBeInterrupted = false;
+    private boolean canBeStarted = true;
 
     public FactoryController(ConfigParser configParser) {
         this.configParser = configParser;
-        this.engineStorage = new Storage<>(ConfigParser.getConfigPairs().get(ConfigParser.ENGINE_STORAGE_SIZE).getValue());
-        this.bodyStorage = new Storage<>(ConfigParser.getConfigPairs().get(ConfigParser.BODY_STORAGE_SIZE).getValue());
-        this.accessoryStorage = new Storage<>(ConfigParser.getConfigPairs().get(ConfigParser.ACCESSORY_STORAGE_SIZE).getValue());
-        this.carStorage = new CarStorage(ConfigParser.getConfigPairs().get(ConfigParser.CAR_STORAGE_SIZE).getValue());
+        this.engineStorage = new Storage<>(ConfigParser.map.get("EngineStorageSize"));
+        this.bodyStorage = new Storage<>(ConfigParser.map.get("BodyStorageSize"));
+        this.accessoryStorage = new Storage<>(ConfigParser.map.get("AccessoryStorageSize"));
+        this.carStorage = new CarStorage(ConfigParser.map.get("CarStorageSize"));
+
+        this.accessorySuppliersCount = ConfigParser.map.get("AccessorySuppliersCount");
+        for (int i = 0; i < accessorySuppliersCount; i++) {
+            this.accessorySuppliers.add(i, new AccessorySupplier(ConfigParser.map.get("AccessorySupplierPeriodicity"), i, accessoryStorage));
+        }
+
+        this.dealersCount = ConfigParser.map.get("DealersCount");
+        for (int i = 0; i < dealersCount; i++) {
+            this.dealers.add(i, new Dealer(i, ConfigParser.map.get("DealersPeriodicity"), carStorage));
+        }
+
+        this.engineSupplier = new EngineSupplier(ConfigParser.map.get("EngineSupplierPeriodicity"), engineStorage);
+        this.bodySupplier = new BodySupplier(ConfigParser.map.get("BodySupplierPeriodicity"), bodyStorage);
+
+        this.threadPool = new ThreadPool(ConfigParser.map.get("WorkersCount"), ConfigParser.map.get("TaskQueueSize"));
     }
 
     public void runFactory() {
@@ -44,53 +64,50 @@ public class FactoryController {
             Logger logger = LogManager.getRootLogger();
             Configurator.setLevel(logger.getName(), Level.OFF);
         }
-        /*javax.swing.SwingUtilities.invokeLater(new Runnable() {
-            public void run() {
-                CreateAndShowGUI.createAndShowGUI();
+
+        if (canBeStarted) {
+            this.accessorySupplierThreads = new ArrayList<>();
+            for (int i = 0; i < accessorySuppliersCount; i++) {
+                Thread accessorySupplierThread = new Thread(accessorySuppliers.get(i));
+                accessorySupplierThread.setName("accessorySupplier #" + i);
+                this.accessorySupplierThreads.add(accessorySupplierThread);
             }
-        });*/
 
-        this.accessorySuppliersCount = ConfigParser.getConfigPairs().get(ConfigParser.ACCESSORY_SUPPLIERS_COUNT).getValue();
-        this.accessorySupplierThreads = new ArrayList<>();
-        for (int i = 0; i < accessorySuppliersCount; i++) {
-            this.accessorySuppliers.add(i, new AccessorySupplier(ConfigParser.getConfigPairs().get(ConfigParser.ACCESSORY_SUPPLIER_PERIODICITY).getValue(), i, accessoryStorage));
-            Thread accessorySupplierThread = new Thread(accessorySuppliers.get(i));
-            accessorySupplierThread.setName("accessorySupplier #" + i);
-            this.accessorySupplierThreads.add(accessorySupplierThread);
-        }
-        this.dealersCount = ConfigParser.getConfigPairs().get(ConfigParser.DEALERS_COUNT).getValue();
-        this.dealerThreads = new ArrayList<>();
-        for (int i = 0; i < dealersCount; i++) {
-            this.dealers.add(i, new Dealer(i, ConfigParser.getConfigPairs().get(ConfigParser.DEALERS_PERIODICITY).getValue(), carStorage));
-            Thread dealerThread = new Thread(dealers.get(i));
-            dealerThread.setName("dealerThread #" + i);
-            this.dealerThreads.add(dealerThread);
-        }
+            this.dealerThreads = new ArrayList<>();
+            for (int i = 0; i < dealersCount; i++) {
+                Thread dealerThread = new Thread(dealers.get(i));
+                dealerThread.setName("dealerThread #" + i);
+                this.dealerThreads.add(dealerThread);
+            }
 
-        this.engineSupplier = new EngineSupplier(ConfigParser.getConfigPairs().get(ConfigParser.ENGINE_SUPPLIER_PERIODICITY).getValue(), engineStorage);
-        this.engineSupplierThread = new Thread(this.engineSupplier);
-        engineSupplierThread.setName("engineSupplierThread");
-        this.bodySupplier = new BodySupplier(ConfigParser.getConfigPairs().get(ConfigParser.BODY_SUPPLIER_PERIODICITY).getValue(), bodyStorage);
-        this.bodySupplierThread = new Thread(this.bodySupplier);
-        bodySupplierThread.setName("bodySupplierThread");
-        ThreadPool threadPool = new ThreadPool(ConfigParser.getConfigPairs().get(ConfigParser.WORKERS_SUPPLIERS_COUNT).getValue(), ConfigParser.getConfigPairs().get(ConfigParser.TASK_QUEUE_SIZE).getValue());
-        this.storageController = new StorageController(engineStorage, bodyStorage, accessoryStorage, carStorage, threadPool);
-        this.storageControllerThread = new Thread(storageController);
-        storageControllerThread.setName("storageControllerThread");
+            this.engineSupplierThread = new Thread(this.engineSupplier);
+            engineSupplierThread.setName("engineSupplierThread");
 
-        for (int i = 0; i < accessorySuppliersCount; i++) {
-            accessorySupplierThreads.get(i).start();
+            this.bodySupplierThread = new Thread(this.bodySupplier);
+            bodySupplierThread.setName("bodySupplierThread");
+
+            this.storageController = new StorageController(engineStorage, bodyStorage, accessoryStorage, carStorage, threadPool);
+            this.carStorage.setStorageController(this.storageController);
+            this.storageControllerThread = new Thread(storageController);
+            storageControllerThread.setName("storageControllerThread");
+
+            for (int i = 0; i < accessorySuppliersCount; i++) {
+                accessorySupplierThreads.get(i).start();
+            }
+            for (int i = 0; i < dealersCount; i++) {
+                dealerThreads.get(i).start();
+            }
+            engineSupplierThread.start();
+            bodySupplierThread.start();
+            storageControllerThread.start();
+            for (Thread poolThread : threadPool.getThreads()) {
+                poolThread.start();
+            }
+            canBeInterrupted = true;
+            canBeStarted = false;
+        } else {
+            logger.error("Factory finished working and can't be started again");
         }
-        for (int i = 0; i < dealersCount; i++) {
-            dealerThreads.get(i).start();
-        }
-        engineSupplierThread.start();
-        bodySupplierThread.start();
-        storageControllerThread.start();
-        for (Thread poolThread : storageController.getThreadPool().getThreads()) {
-            poolThread.start();
-        }
-        canBeInterrupted = true;
     }
 
     public void interruptFactory() {
@@ -107,6 +124,8 @@ public class FactoryController {
             }
             engineSupplierThread.interrupt();
             bodySupplierThread.interrupt();
+        } else {
+            logger.info("Factory hasn't started, nothing to interrupt");
         }
     }
 
@@ -140,5 +159,9 @@ public class FactoryController {
 
     public ArrayList<Dealer> getDealers() {
         return dealers;
+    }
+
+    public ThreadPool getThreadPool() {
+        return threadPool;
     }
 }

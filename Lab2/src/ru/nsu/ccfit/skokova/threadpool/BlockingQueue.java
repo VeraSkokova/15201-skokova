@@ -1,6 +1,5 @@
 package ru.nsu.ccfit.skokova.threadpool;
 
-import java.util.ArrayList;
 import java.util.LinkedList;
 
 public class BlockingQueue<T> {
@@ -23,7 +22,6 @@ public class BlockingQueue<T> {
         list.add(element);
         notifyAll();
     }
-
 
     public synchronized T dequeue() throws InterruptedException {
         while (this.list.size() == 0) {

@@ -1,5 +1,7 @@
 package ru.nsu.ccfit.skokova.factory;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import ru.nsu.ccfit.skokova.factory.gui.CreateAndShowGUI;
 import ru.nsu.ccfit.skokova.factory.gui.FactoryButtons;
 import ru.nsu.ccfit.skokova.factory.gui.FactoryInformer;
@@ -14,24 +16,36 @@ import java.io.IOException;
 import java.util.ArrayList;
 
 public class Main {
+
+    private static Logger logger = LogManager.getLogger(Main.class);
+
+    /*static {
+        System.getProperties().setProperty("log4j.configurationFile", "src/log4j2.xml");
+    }*/
+
     public static void main(String[] args) {
         try {
-            String name = "/home/veraskokova/Документы/MyConfig.txt";
-            ConfigParser configParser= new ConfigParser(name);
+            //if (args.length != 1) {
+            //    System.out.println("Add configuration file");
+            //} else {
+                //String name = args[0];
+                //ConfigParser configParser = new ConfigParser(name);
+                String name = "/home/veraskokova/Документы/MyConfig.txt";
+                ConfigParser configParser = new ConfigParser(name);
 
-            FactoryController factoryController = new FactoryController(configParser);
+                FactoryController factoryController = new FactoryController(configParser);
 
-            Controller controller = new Controller(factoryController);
+                Controller controller = new Controller(factoryController);
 
-            //factoryController.runFactory();
+                //factoryController.runFactory();
 
-            //Thread.sleep(19000);
+                //Thread.sleep(19000);
 
-            //factoryController.interruptFactory();
+                //factoryController.interruptFactory();
 
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-
+            } catch(IOException | BadParseException | NumberFormatException e){
+                logger.error(e.getMessage());
+            }
+        //}
     }
 }

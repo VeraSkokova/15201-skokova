@@ -14,6 +14,10 @@ public class FactoryInformer extends JPanel {
         this.add(this.textValue);
     }
 
+    public void setTextValue(JLabel textValue) {
+        this.textValue = textValue;
+    }
+
     public class ValueChanger implements ValueChangedHandler {
         @Override
         public void handle(int value) {

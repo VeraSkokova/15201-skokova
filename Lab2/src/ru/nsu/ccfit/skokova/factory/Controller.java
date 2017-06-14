@@ -15,24 +15,51 @@ public class Controller {
     public Controller(FactoryController factoryController) {
         this.factoryController = factoryController;
 
-        CreateAndShowGUI.createAndShowGUI();
+        CreateAndShowGUI createAndShowGUI = new CreateAndShowGUI(factoryController);
 
+        createAndShowGUI.createAndShowGUI();
 
         /***********Information Panel***********/
-        FactoryInformer first = (FactoryInformer) CreateAndShowGUI.getInformationPanel().getComponent(0);
-        factoryController.getEngineStorage().addHandler(first.new ValueChanger());
+        FactoryInformer enginesCountInformer = (FactoryInformer) createAndShowGUI.getInformationPanel().getComponent(0);
+        factoryController.getEngineStorage().addHandler(enginesCountInformer.new ValueChanger());
 
-        FactoryInformer second = (FactoryInformer) CreateAndShowGUI.getInformationPanel().getComponent(1);
-        factoryController.getBodyStorage().addHandler(second.new ValueChanger());
+        FactoryInformer bodiesCountInformer = (FactoryInformer) createAndShowGUI.getInformationPanel().getComponent(1);
+        factoryController.getBodyStorage().addHandler(bodiesCountInformer.new ValueChanger());
 
-        FactoryInformer third = (FactoryInformer) CreateAndShowGUI.getInformationPanel().getComponent(2);
-        factoryController.getAccessoryStorage().addHandler(third.new ValueChanger());
+        FactoryInformer accessoriesCountInformer = (FactoryInformer) createAndShowGUI.getInformationPanel().getComponent(2);
+        factoryController.getAccessoryStorage().addHandler(accessoriesCountInformer.new ValueChanger());
+
+        FactoryInformer carsMadeInformer = (FactoryInformer) createAndShowGUI.getInformationPanel().getComponent(3);
+        Worker.addHandler(carsMadeInformer.new ValueChanger());
+
+        FactoryInformer carsOnCarStorageInformer = (FactoryInformer) createAndShowGUI.getInformationPanel().getComponent(4);
+        factoryController.getCarStorage().addHandler(carsOnCarStorageInformer.new ValueChanger());
+
+        FactoryInformer carsSoldInformer = (FactoryInformer) createAndShowGUI.getInformationPanel().getComponent(5);
+        Dealer.addHandler(carsSoldInformer.new ValueChanger());
+
+        FactoryInformer tasksToDoInformer = (FactoryInformer) createAndShowGUI.getInformationPanel().getComponent(6);
+        factoryController.getThreadPool().addHandler(tasksToDoInformer.new ValueChanger());
 
         /***********Regulation Panel***********/
+        FactoryRegulator engineSupplierRegulator = (FactoryRegulator) createAndShowGUI.getRegulationPanel().getComponent(0);
+        EngineSupplierUpdater engineSupplierUpdater = new EngineSupplierUpdater(this.factoryController.getEngineSupplier());
+        engineSupplierRegulator.addHandler(engineSupplierUpdater);
 
+        FactoryRegulator bodySupplierRegulator = (FactoryRegulator) createAndShowGUI.getRegulationPanel().getComponent(1);
+        BodySupplierUpdater bodySupplierUpdater = new BodySupplierUpdater(this.factoryController.getBodySupplier());
+        bodySupplierRegulator.addHandler(bodySupplierUpdater);
+
+        FactoryRegulator accessorySupplierRegulator = (FactoryRegulator) createAndShowGUI.getRegulationPanel().getComponent(2);
+        AccessorySupplierUpdater accessorySupplierUpdater = new AccessorySupplierUpdater(this.factoryController.getAccessorySuppliers());
+        accessorySupplierRegulator.addHandler(accessorySupplierUpdater);
+
+        FactoryRegulator dealersRegulator = (FactoryRegulator) createAndShowGUI.getRegulationPanel().getComponent(3);
+        DealerUpdater dealerUpdater = new DealerUpdater(this.factoryController.getDealers());
+        dealersRegulator.addHandler(dealerUpdater);
 
         /***********Buttons***********/
-        FactoryButtons factoryButtons = (FactoryButtons) CreateAndShowGUI.getButtonPanel().getComponent(0);
+        FactoryButtons factoryButtons = (FactoryButtons) createAndShowGUI.getButtonPanel().getComponent(0);
         JButton runButton = factoryButtons.getRunButton();
         runButton.addActionListener(new ActionListener() {
             @Override
@@ -48,6 +75,11 @@ public class Controller {
                 factoryController.interruptFactory();
             }
         });
+    }
+
+    public void dispose() {
+        factoryController.interruptFactory();
+        System.exit(0);
     }
 
 }

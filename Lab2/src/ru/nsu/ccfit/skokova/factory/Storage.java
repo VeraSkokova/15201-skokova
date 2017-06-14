@@ -7,7 +7,7 @@ import java.util.ArrayList;
 
 public class Storage<T extends Detail> {
     private BlockingQueue<Detail> details;
-    private int size;
+    private final int size;
     private ArrayList<ValueChangedHandler> handlers = new ArrayList<>();
 
     public void addHandler(ValueChangedHandler handler) {
@@ -38,7 +38,7 @@ public class Storage<T extends Detail> {
         return detail;
     }
 
-    public void setSize(int size) {
-        this.size = size;
+    public int getSize() {
+        return size;
     }
 }

@@ -1,5 +1,8 @@
 package ru.nsu.ccfit.skokova.factory.gui;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
 import javax.swing.*;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
@@ -12,22 +15,28 @@ public class FactoryRegulator extends JPanel {
     private JSlider slider;
     private JTextField textField;
     private JLabel label;
-    private ArrayList<ValueChangedHandler> handlers;
+    private ArrayList<ValueChangedHandler> handlers = new ArrayList<>();
 
-    public FactoryRegulator(JLabel label, int min, int max) {
-        this.handlers = new ArrayList<>();
+    private static final int MIN_VALUE = 0;
+    private static final int MAX_VALUE = 5000;
+
+    private static final Logger logger = LogManager.getLogger(FactoryRegulator.class);
+
+    public FactoryRegulator(JLabel label, int min, int max, String textField) {
         this.label = label;
+        this.textField = new JTextField(textField);
 
         this.slider = new JSlider(min, max);
         slider.setMinorTickSpacing(min);
         slider.setMajorTickSpacing(max);
         slider.setPaintTicks(true);
         slider.setPaintLabels(true);
+        this.slider.setValue(Integer.parseInt(textField));
         this.slider.addChangeListener(new SliderListener());
 
-        this.textField = new JTextField();
-        textField.setPreferredSize(new Dimension(125, 25));
-        textField.addActionListener(new TextFieldListener());
+
+        this.textField.setPreferredSize(new Dimension(125, 25));
+        this.textField.addActionListener(new TextFieldListener());
 
         this.add(this.label);
         this.add(this.slider);
@@ -43,7 +52,7 @@ public class FactoryRegulator extends JPanel {
     public void addHandler(ValueChangedHandler handler) {
         if (handler != null) {
             this.handlers.add(handler);
-        } //TODO else?
+        }
     }
 
 
@@ -53,17 +62,23 @@ public class FactoryRegulator extends JPanel {
             int value = slider.getValue();
             textField.setText(Integer.toString(value));
             notifyValueChanged(value);
-            //System.out.println("Changed");
         }
     }
 
     class TextFieldListener implements ActionListener {
         @Override
         public void actionPerformed(ActionEvent actionEvent) {
-            int value = Integer.parseInt(textField.getText());
-            slider.setValue(value);
-            notifyValueChanged(value);
-            //System.out.println("Changed");
+            try {
+                int value = Integer.parseInt(textField.getText());
+                if ((value < MIN_VALUE) || (value > MAX_VALUE)) {
+                    throw new NumberFormatException("Incorrect value");
+                }
+                slider.setValue(value);
+                notifyValueChanged(value);
+            } catch (NumberFormatException e) {
+                textField.setForeground(Color.RED);
+                logger.error("Wrong field value");
+            }
         }
     }
 }
