@@ -1,9 +1,6 @@
 package ru.nsu.ccfit.skokova.chat;
 
-import ru.nsu.ccfit.skokova.chat.message.ChatMessage;
-import ru.nsu.ccfit.skokova.chat.message.LogoutMessage;
-import ru.nsu.ccfit.skokova.chat.message.TextMessage;
-import ru.nsu.ccfit.skokova.chat.message.UserListMessage;
+import ru.nsu.ccfit.skokova.chat.message.*;
 
 import java.io.IOException;
 import java.io.ObjectInputStream;
@@ -72,7 +69,7 @@ public class Client  {
         try {
             outputStream.writeObject(msg);
         } catch(IOException e) {
-            display("Exception writing to server: " + e);
+            display("Exception writing to server: " + e.getMessage());
         }
     }
 

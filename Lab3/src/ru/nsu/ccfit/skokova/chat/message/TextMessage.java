@@ -11,7 +11,9 @@ public class TextMessage extends ChatMessage {
     }
 
     public void process(Server server, ConnectedClient connectedClient) {
-        server.broadcast(new TextMessage(connectedClient.getUsername() + ": " + message));
+        TextMessage textMessage = new TextMessage(connectedClient.getUsername() + ": " + message);
+        server.broadcast(textMessage);
+        server.saveMessage(textMessage);
     }
 
     @Override

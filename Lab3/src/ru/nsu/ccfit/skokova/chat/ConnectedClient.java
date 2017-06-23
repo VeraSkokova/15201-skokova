@@ -14,11 +14,13 @@ import java.util.concurrent.BlockingQueue;
 
 public class ConnectedClient {
     private static final int MAX_MSG_COUNT = 10000;
+    private int sessionId;
     private Socket socket;
     private Server server;
 
     private String username;
     private String date;
+    private boolean isValid;
 
     private static final Logger logger = LogManager.getLogger(ConnectedClient.class);
 
@@ -31,18 +33,20 @@ public class ConnectedClient {
         this.socket = socket;
         this.server = server;
         this.username = username;
-        this.readerThread = new Thread(new ReadFromServer());
-        this.writerThread = new Thread(new WriteToServer());
+        this.readerThread = new Thread(new Reader());
+        this.writerThread = new Thread(new Writer());
         this.date = new Date().toString() + "\n";
     }
 
     public void run() {
+        this.isValid = true;
         readerThread.start();
         writerThread.start();
         logger.info("New connected client");
     }
 
     public void interrupt() {
+        this.isValid = false;
         readerThread.interrupt();
         writerThread.interrupt();
         logger.info("Connected client stopped working");
@@ -68,25 +72,43 @@ public class ConnectedClient {
         return messages;
     }
 
+    public int getSessionId() {
+        return sessionId;
+    }
+
+    public void setSessionId(int sessionId) {
+        this.sessionId = sessionId;
+    }
+
+    public void login(Server server) {
+        this.setSessionId(server.setUserSessionId());
+        server.addClient(this);
+    }
+
     public Socket getSocket() {
         return socket;
     }
 
-    public class ReadFromServer implements Runnable {
+    public boolean isValid() {
+        return isValid;
+    }
+
+    public class Reader implements Runnable {
         @Override
         public void run() {
             try (ObjectInputStream inputStream = new ObjectInputStream(socket.getInputStream())) {
-                ChatMessage message = null;
                 while(!Thread.interrupted()) {
-                    Object object = inputStream.readObject();
-                    if (object instanceof String)
-                        System.out.println("aaaa");
-                    if (object instanceof ChatMessage)
-                        message = (ChatMessage) object;
-                    message.process(server, ConnectedClient.this); //TODO : process message normally
+                    if (!isValid) {
+                        break;
+                    }
+                    ChatMessage message = (ChatMessage) inputStream.readObject();
+                    message.process(server, ConnectedClient.this);
+                }
+                if (Thread.currentThread().isInterrupted()) {
+                    System.out.println("Reader was interrupted");
                 }
             } catch (IOException e) {
-                logger.error("Can't read message :" + e.getMessage());
+                logger.error("Can't read message :" + e.getMessage() + " I'm " + getSessionId());
             } catch (ClassNotFoundException e) {
                 logger.error(e.getMessage());
             } catch (ClassCastException e) {
@@ -98,7 +120,7 @@ public class ConnectedClient {
         }
     }
 
-    public class WriteToServer implements Runnable {
+    public class Writer implements Runnable {
         @Override
         public void run() {
             try (ObjectOutputStream outputStream = new ObjectOutputStream(socket.getOutputStream())) {

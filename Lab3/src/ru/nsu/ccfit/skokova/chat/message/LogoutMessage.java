@@ -3,7 +3,7 @@ package ru.nsu.ccfit.skokova.chat.message;
 import ru.nsu.ccfit.skokova.chat.ConnectedClient;
 import ru.nsu.ccfit.skokova.chat.Server;
 
-public class LogoutMessage extends ChatMessage{
+public class LogoutMessage extends ChatMessage {
 
     public LogoutMessage() {}
 
@@ -12,5 +12,8 @@ public class LogoutMessage extends ChatMessage{
         connectedClient.interrupt();
         connectedClient.close();
         server.removeClient(connectedClient);
+        TextMessage textMessage = new TextMessage(connectedClient.getUsername() + " logged out");
+        server.broadcast(textMessage);
+        server.saveMessage(textMessage);
     }
 }
