@@ -24,6 +24,9 @@ public class Server {
     private int port;
     private boolean isWorking;
 
+    public static final int MIN_PORT_NUMBER = 0;
+    public static final int MAX_PORT_NUMBER = 65535;
+
     private static final Logger logger = LogManager.getLogger(Server.class);
 
     public Server(int port) {
@@ -99,7 +102,7 @@ public class Server {
         messageHistory.add(message);
     }
 
-    public synchronized void removeClient(ConnectedClient connectedClient) {
+    public synchronized void removeClient(ObjectStreamConnectedClient connectedClient) {
         connectedClients.remove(connectedClient);
     }
 
@@ -107,12 +110,16 @@ public class Server {
         return SESSION_ID.getAndIncrement();
     }
 
-    public synchronized void addClient(ConnectedClient connectedClient) {
+    public synchronized void addClient(ObjectStreamConnectedClient connectedClient) {
         this.connectedClients.add(connectedClient);
     }
 
+    public void check(TextMessage message) {
+
+    }
+
     private void connectClient(Socket socket) {
-        ConnectedClient connectedClient = new ConnectedClient(socket, this, "username");
+        ObjectStreamConnectedClient connectedClient = new ObjectStreamConnectedClient(socket, this, "username");
         connectedClient.login(this);
         connectedClient.run();
         broadcast(new TextMessage("New user logged in"));

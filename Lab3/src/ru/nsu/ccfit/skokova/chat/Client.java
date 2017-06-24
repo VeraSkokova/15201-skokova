@@ -1,5 +1,6 @@
 package ru.nsu.ccfit.skokova.chat;
 
+import ru.nsu.ccfit.skokova.chat.gui.ClientFrame;
 import ru.nsu.ccfit.skokova.chat.message.*;
 
 import java.io.IOException;
@@ -19,6 +20,8 @@ public class Client  {
 
     private Thread inThread;
     private Thread outThread;
+
+    Client() {}
 
     Client(String server, int port, String username) {
         this.server = server;
@@ -65,7 +68,7 @@ public class Client  {
         System.out.println(msg);
     }
 
-    private void sendMessage(ChatMessage msg) {
+    public void sendMessage(ChatMessage msg) {
         try {
             outputStream.writeObject(msg);
         } catch(IOException e) {
@@ -89,35 +92,26 @@ public class Client  {
         }
     }
 
+    public void setServer(String server) {
+        this.server = server;
+    }
+
+    public void setUsername(String username) {
+        this.username = username;
+    }
+
+    public void setPort(int port) {
+        this.port = port;
+    }
+
     public static void main(String[] args) {
         // default values
         int portNumber = 1500;
         String serverAddress = "localhost";
         String userName = "Anonymous";
 
-        switch(args.length) {
-            case 3:
-                serverAddress = args[2];
-            case 2:
-                try {
-                    portNumber = Integer.parseInt(args[1]);
-                }
-                catch(Exception e) {
-                    System.out.println("Invalid port number.");
-                    System.out.println("Usage is: > java Client [username] [portNumber] [serverAddress]");
-                    return;
-                }
-            case 1:
-                userName = args[0];
-            case 0:
-                break;
-            default:
-                System.out.println("Usage is: > java Client [username] [portNumber] {serverAddress]");
-                return;
-        }
         Client client = new Client(serverAddress, portNumber, userName);
-        if(!client.start())
-            return;
+        ClientFrame clientFrame = new ClientFrame(client);
     }
 
     class ReadFromServer implements Runnable {
