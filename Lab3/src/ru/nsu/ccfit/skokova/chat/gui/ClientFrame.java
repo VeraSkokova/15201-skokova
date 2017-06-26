@@ -4,7 +4,8 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import ru.nsu.ccfit.skokova.chat.Client;
 import ru.nsu.ccfit.skokova.chat.Server;
-import ru.nsu.ccfit.skokova.chat.message.TextMessage;
+import ru.nsu.ccfit.skokova.chat.message.Message;
+import ru.nsu.ccfit.skokova.chat.message.TextMessageFromServer;
 
 import javax.swing.*;
 import java.awt.*;
@@ -91,8 +92,8 @@ public class ClientFrame extends JFrame {
     private void addConnectionInfo() {
         this.connectionPanel = new JPanel(new GridLayout(3,1));
         JPanel serverAndPortPanel = new JPanel(new GridLayout(1, 5, 1, 3));
-        this.serverField = new JTextField("Server address");
-        this.portField = new JTextField("Port");
+        this.serverField = new JTextField("localhost");
+        this.portField = new JTextField("1500");
         this.serverField.setHorizontalAlignment(SwingConstants.LEFT);
         this.portField.setHorizontalAlignment(SwingConstants.RIGHT);
         serverAndPortPanel.add(this.serverField);
@@ -110,7 +111,7 @@ public class ClientFrame extends JFrame {
     }
 
     private void addChatPanel() {
-        this.messageArea = new JTextArea("Welcome to the Chat");
+        this.messageArea = new JTextArea("Welcome to the Chat\n");
         JScrollPane messageScrollPane = new JScrollPane(this.messageArea);
         JPanel chatPanel = new JPanel(new GridLayout(1, 1));
         chatPanel.add(messageScrollPane);
@@ -152,11 +153,15 @@ public class ClientFrame extends JFrame {
         @Override
         public void actionPerformed(ActionEvent actionEvent) {
             try {
-                int value = Integer.parseInt(portField.getText());
-                if ((value < Server.MIN_PORT_NUMBER) || (value > Server.MAX_PORT_NUMBER)) {
-                    throw new NumberFormatException("Incorrect value");
+                if (portField.getText().isEmpty()) {
+                    portField.setText("Enter port number");
+                } else {
+                    int value = Integer.parseInt(portField.getText());
+                    if ((value < Server.MIN_PORT_NUMBER) || (value > Server.MAX_PORT_NUMBER)) {
+                        throw new NumberFormatException("Incorrect value");
+                    }
+                    client.setPort(value);
                 }
-                client.setPort(value);
             } catch (NumberFormatException e) {
                 portField.setForeground(Color.RED);
                 logger.error("Wrong field value");
@@ -168,8 +173,12 @@ public class ClientFrame extends JFrame {
         @Override
         public void actionPerformed(ActionEvent actionEvent) {
             try {
-                String value = serverField.getText();
-                client.setServer(value);
+                if (serverField.getText().isEmpty()) {
+                    serverField.setText("Enter server address");
+                } else {
+                    String value = serverField.getText();
+                    client.setServer(value);
+                };
             } catch (Exception e) {
                 logger.error(e.getMessage());
             }
@@ -180,8 +189,12 @@ public class ClientFrame extends JFrame {
         @Override
         public void actionPerformed(ActionEvent actionEvent) {
             try {
-                String value = usernameField.getText();
-                client.setUsername(value);
+                if (usernameField.getText().isEmpty()) {
+                    usernameField.setText("Enter your username");
+                } else {
+                    String value = usernameField.getText();
+                    client.setUsername(value);
+                }
             } catch (Exception e) {
                 logger.error(e.getMessage());
             }
@@ -191,7 +204,7 @@ public class ClientFrame extends JFrame {
     public class MessageUpdater implements ValueChangedHandler {
         @Override
         public void handle(Object value) {
-            TextMessage msg = (TextMessage)value;
+            Message msg = (Message)value;
             messageArea.append(msg.getMessage() + "\n");
             messageArea.setCaretPosition(messageArea.getText().length() - 1);
         }

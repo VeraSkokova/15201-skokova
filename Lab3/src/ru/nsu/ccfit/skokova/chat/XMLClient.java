@@ -72,30 +72,16 @@ public class XMLClient extends Client {
 
     //TODO
     class ReadFromServer implements Runnable {
-        private byte[] readMessage() {
-            byte[] message = null;
-            try {
-                int length = inputStream.readInt();
-                int read = 0;
-                message = new byte[length];
-                while (read < length) {
-                    int temp = inputStream.read(message, read, length - read);
-                    read += temp;
-                }
-            } catch (IOException e) {
-                logger.error("Error in reading message: " + e.getMessage());
-            }
-            return message;
-        }
-
         @Override
         public void run() {
+            ByteReader byteReader = new ByteReader(inputStream);
             while (true) {
-                byte[] messageBytes = readMessage();
+                byte[] messageBytes = byteReader.readMessage();
                 if (messageBytes == null) {
                     logger.error("Message hasn't been read");
                 } else {
                     String msg = new String(messageBytes);
+                    //TODO : parse or something else
                 }
             }
         }
@@ -105,19 +91,13 @@ public class XMLClient extends Client {
         @Override
         public void run() {
             Scanner scan = new Scanner(System.in);
-            while (true) {
-                System.out.print("> ");
-                String msg = scan.nextLine();
-                if(msg.equalsIgnoreCase("LOGOUT")) {
-                    sendLogoutMessage();
-                    break;
+            try {
+                while (true) {
+                    String message = xmlMessages.take();
+                    sendMessage(message);
                 }
-                else if(msg.equalsIgnoreCase("WHOISIN")) {
-                    sendUserListMessage();
-                }
-                else {
-                    sendTextMessage(msg);
-                }
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
             }
         }
     }

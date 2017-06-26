@@ -3,7 +3,8 @@ package ru.nsu.ccfit.skokova.chat;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import ru.nsu.ccfit.skokova.chat.message.ChatMessage;
-import ru.nsu.ccfit.skokova.chat.message.TextMessage;
+import ru.nsu.ccfit.skokova.chat.message.Message;
+import ru.nsu.ccfit.skokova.chat.message.TextMessageFromServer;
 
 import java.io.IOException;
 import java.net.ServerSocket;
@@ -19,11 +20,13 @@ public class Server {
     private static final int MESSAGES_COUNT = 10000;
     private static final AtomicInteger SESSION_ID = new AtomicInteger(1);
     private ArrayList<ConnectedClient> connectedClients = new ArrayList<>();
-    private BlockingQueue<ChatMessage> messageHistory = new ArrayBlockingQueue<>(MESSAGES_COUNT);
+    private BlockingQueue<Message> messageHistory = new ArrayBlockingQueue<>(MESSAGES_COUNT);
     private BlockingQueue<ChatMessage> requests = new ArrayBlockingQueue<>(MESSAGES_COUNT);
+    private BlockingQueue<String> usernames = new ArrayBlockingQueue<String>(MESSAGES_COUNT);
     private SimpleDateFormat sdf;
     private int port;
     private boolean isWorking;
+    private Socket socket;
 
     public static final int MIN_PORT_NUMBER = 0;
     public static final int MAX_PORT_NUMBER = 65535;
@@ -41,6 +44,10 @@ public class Server {
 
     public BlockingQueue<ChatMessage> getRequests() {
         return requests;
+    }
+
+    public BlockingQueue<String> getUsernames() {
+        return usernames;
     }
 
     public void start() {
@@ -87,7 +94,7 @@ public class Server {
         logger.info(time);
     }
 
-    public synchronized void broadcast(ChatMessage message) {
+    public synchronized void broadcast(Message message) {
         String time = sdf.format(new Date());
         String messageLf = time + " " + message.getMessage() + "\n";
         logger.info(messageLf);
@@ -103,11 +110,15 @@ public class Server {
         connectedClient.getMessages().add(message);
     }
 
-    public void saveMessage(ChatMessage message) {
+    public void sendMessage(Message message, ConnectedClient connectedClient) {
+        connectedClient.getMessages().add(message);
+    }
+
+    public void saveMessage(Message message) {
         messageHistory.add(message);
     }
 
-    public synchronized void removeClient(ObjectStreamConnectedClient connectedClient) {
+    public synchronized void removeClient(ConnectedClient connectedClient) {
         connectedClients.remove(connectedClient);
     }
 
@@ -119,38 +130,26 @@ public class Server {
         this.connectedClients.add(connectedClient);
     }
 
-    public void check(TextMessage message) {
+    public Socket getSocket() {
+        return socket;
+    }
+
+    public void check(TextMessageFromServer message) {
 
     }
 
-    private void connectClient(Socket socket) {
-        ObjectStreamConnectedClient connectedClient = new ObjectStreamConnectedClient(socket, this, "username");
+    public void connectClient(Socket socket) {
+        ObjectStreamConnectedClient connectedClient = new ObjectStreamConnectedClient(socket, this);
         connectedClient.run();
         connectedClient.login(this);
-        broadcast(new TextMessage("New user logged in"));
-        for (ChatMessage message : messageHistory) {
+        //broadcast(new TextMessageFromServer("New user logged in"));
+        for (Message message : messageHistory) {
             sendMessage(message, connectedClient);
         }
     }
 
     public static void main(String[] args) {
         int portNumber = 1500;
-        switch (args.length) {
-            case 1:
-                try {
-                    portNumber = Integer.parseInt(args[0]);
-                } catch (Exception e) {
-                    System.out.println("Invalid port number.");
-                    System.out.println("Usage is: > java Server [portNumber]");
-                    return;
-                }
-            case 0:
-                break;
-            default:
-                System.out.println("Usage is: > java Server [portNumber]");
-                return;
-
-        }
         Server server = new Server(portNumber);
         server.start();
     }

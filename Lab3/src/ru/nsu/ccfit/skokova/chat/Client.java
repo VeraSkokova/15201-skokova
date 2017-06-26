@@ -13,15 +13,18 @@ import java.util.concurrent.BlockingQueue;
 public abstract class Client  {
     private static final int MESSAGES_COUNT = 10000;
     protected Socket socket;
+    protected boolean isLoggedIn = false;
 
     protected String server;
     protected String username;
+    protected int sessionId;
     protected int port;
 
     protected Thread inThread;
     protected Thread outThread;
 
-    protected BlockingQueue<ChatMessage> messages = new ArrayBlockingQueue<ChatMessage>(MESSAGES_COUNT);
+    protected BlockingQueue<Message> messages = new ArrayBlockingQueue<>(MESSAGES_COUNT);
+    protected BlockingQueue<String> xmlMessages = new ArrayBlockingQueue<>(MESSAGES_COUNT);
     protected ArrayList<ValueChangedHandler> handlers = new ArrayList<>();
 
     protected Logger logger = LogManager.getLogger(Client.class);
@@ -47,12 +50,9 @@ public abstract class Client  {
         }
     }
 
+    public void sendErrorMessage() {}
 
     public void start() {}
-
-    /*private void display(String msg) {
-        System.out.println(msg);
-    }*/
 
     public void sendTextMessage(String message) {}
 
@@ -60,7 +60,12 @@ public abstract class Client  {
 
     public void sendUserListMessage() {}
 
-    private void disconnect() {}
+    public void disconnect() {}
+
+    public void interrupt() {
+        inThread.interrupt();
+        outThread.interrupt();
+    }
 
     public void setServer(String server) {
         this.server = server;
@@ -76,5 +81,21 @@ public abstract class Client  {
 
     public String getUsername() {
         return username;
+    }
+
+    public int getSessionId() {
+        return sessionId;
+    }
+
+    public void setSessionId(int sessionId) {
+        this.sessionId = sessionId;
+    }
+
+    public boolean isLoggedIn() {
+        return isLoggedIn;
+    }
+
+    public void setLoggedIn(boolean loggedIn) {
+        isLoggedIn = loggedIn;
     }
 }

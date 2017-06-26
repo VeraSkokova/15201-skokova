@@ -2,6 +2,7 @@ package ru.nsu.ccfit.skokova.chat;
 
 import ru.nsu.ccfit.skokova.chat.message.ChatMessage;
 import ru.nsu.ccfit.skokova.chat.message.LoginMessage;
+import ru.nsu.ccfit.skokova.chat.message.Message;
 
 import java.io.IOException;
 import java.io.ObjectInputStream;
@@ -11,9 +12,16 @@ import java.util.Date;
 
 public class ObjectStreamConnectedClient extends ConnectedClient{
     public ObjectStreamConnectedClient(Socket socket, Server server, String username) {
-        this.socket = socket;
-        this.server = server;
+        super(socket, server);
         this.username = username;
+        this.type = "ObjectStream";
+        this.readerThread = new Thread(new Reader());
+        this.writerThread = new Thread(new Writer());
+        this.date = new Date().toString() + "\n";
+    }
+
+    public ObjectStreamConnectedClient(Socket socket, Server server) {
+        super(socket, server);
         this.type = "ObjectStream";
         this.readerThread = new Thread(new Reader());
         this.writerThread = new Thread(new Writer());
@@ -59,8 +67,9 @@ public class ObjectStreamConnectedClient extends ConnectedClient{
                     if (!isValid) {
                         break;
                     }
-                    ChatMessage message = (ChatMessage) inputStream.readObject();
-                    message.process(server, ObjectStreamConnectedClient.this);
+                    Message message = (Message) inputStream.readObject();
+                    message.setConnectedClient(ObjectStreamConnectedClient.this);
+                    message.process(server);
                 }
                 if (Thread.currentThread().isInterrupted()) {
                     System.out.println("Reader was interrupted");
@@ -80,7 +89,7 @@ public class ObjectStreamConnectedClient extends ConnectedClient{
         public void run() {
             try (ObjectOutputStream outputStream = new ObjectOutputStream(socket.getOutputStream())) {
                 while(!Thread.interrupted()) {
-                    ChatMessage message = messages.take(); //TODO ?
+                    Message message = messages.take();
                     outputStream.writeObject(message);
                 }
             } catch (IOException e) {

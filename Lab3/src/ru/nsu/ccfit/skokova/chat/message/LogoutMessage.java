@@ -1,19 +1,27 @@
 package ru.nsu.ccfit.skokova.chat.message;
 
-import ru.nsu.ccfit.skokova.chat.ObjectStreamConnectedClient;
+import ru.nsu.ccfit.skokova.chat.ConnectedClient;
 import ru.nsu.ccfit.skokova.chat.Server;
 
-public class LogoutMessage extends ChatMessage {
+import java.io.Serializable;
+
+public class LogoutMessage extends ChatMessage implements Serializable {
 
     public LogoutMessage() {}
 
-    public void process(Server server, ObjectStreamConnectedClient objectStreamConnectedClient) {
-        server.display(objectStreamConnectedClient.getUsername() + " disconnected with a LOGOUT message.");
-        objectStreamConnectedClient.interrupt();
-        objectStreamConnectedClient.close();
-        server.removeClient(objectStreamConnectedClient);
-        TextMessage textMessage = new TextMessage(objectStreamConnectedClient.getUsername() + " logged out");
-        server.broadcast(textMessage);
-        server.saveMessage(textMessage);
+    public void process(Server server) {
+        if (this.getSessionId() != connectedClient.getSessionId()) {
+            server.sendMessage(new LogoutError("Authentication error"), connectedClient);
+        } else {
+            server.display(connectedClient.getUsername() + " disconnected with a LOGOUT message.");
+            server.sendMessage(new LogoutSuccess(), connectedClient);
+            server.getUsernames().remove(connectedClient.getUsername());
+            connectedClient.interrupt();
+            connectedClient.close();
+            server.removeClient(connectedClient);
+            ClientLoggedOutMessage textMessageFromServer = new ClientLoggedOutMessage(connectedClient.getUsername() + " logged out");
+            server.broadcast(textMessageFromServer);
+            server.saveMessage(textMessageFromServer);
+        }
     }
 }

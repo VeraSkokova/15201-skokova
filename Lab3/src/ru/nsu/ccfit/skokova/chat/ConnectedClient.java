@@ -3,6 +3,7 @@ package ru.nsu.ccfit.skokova.chat;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import ru.nsu.ccfit.skokova.chat.message.ChatMessage;
+import ru.nsu.ccfit.skokova.chat.message.Message;
 
 import java.net.Socket;
 import java.util.concurrent.ArrayBlockingQueue;
@@ -21,10 +22,22 @@ public abstract class ConnectedClient {
 
     protected static final Logger logger = LogManager.getLogger(ObjectStreamConnectedClient.class);
 
-    protected BlockingQueue<ChatMessage> messages = new ArrayBlockingQueue<>(MAX_MSG_COUNT);
+    protected BlockingQueue<Message> messages = new ArrayBlockingQueue<>(MAX_MSG_COUNT);
+    protected BlockingQueue<String> xmlMessages = new ArrayBlockingQueue<>(MAX_MSG_COUNT);
 
     protected Thread readerThread;
     protected Thread writerThread;
+
+    public ConnectedClient() {}
+
+    public ConnectedClient(Socket socket, Server server) {
+        this.socket = socket;
+        this.server = server;
+    }
+
+    public void setUsername(String username) {
+        this.username = username;
+    }
 
     public void run() {}
 
@@ -40,7 +53,7 @@ public abstract class ConnectedClient {
         return date;
     }
 
-    public BlockingQueue<ChatMessage> getMessages() {
+    public BlockingQueue<Message> getMessages() {
         return messages;
     }
 
@@ -54,6 +67,10 @@ public abstract class ConnectedClient {
 
     public boolean isValid() {
         return isValid;
+    }
+
+    public String getType() {
+        return type;
     }
 
     public void login(Server server) {}

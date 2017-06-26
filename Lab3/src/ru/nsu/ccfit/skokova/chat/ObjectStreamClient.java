@@ -6,8 +6,8 @@ import ru.nsu.ccfit.skokova.chat.message.*;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import java.io.Serializable;
 import java.net.Socket;
-import java.util.Scanner;
 
 public class ObjectStreamClient extends Client{
     private ObjectInputStream inputStream;
@@ -27,8 +27,15 @@ public class ObjectStreamClient extends Client{
             logger.error("Error in connection to server:" + ec.getMessage());
         }
 
-        String message = "Connection accepted " + socket.getInetAddress() + ":" + socket.getPort();
-        display(message);
+        try {
+            String message = "Connection accepted " + socket.getInetAddress() + ":" + socket.getPort();
+            display(message);
+        } catch (NullPointerException e) {
+            notifyValueChanged(new LoginError("Server is not opened"));
+            return;
+        }
+
+        messages.add(new LoginMessage(this));
 
         try {
             this.inputStream = new ObjectInputStream(socket.getInputStream());
@@ -43,41 +50,38 @@ public class ObjectStreamClient extends Client{
 
         this.inThread.start();
         this.outThread.start();
-
-        /*try {
-            outputStream.writeObject(username);
-        } catch (IOException eIO) {
-            display("Exception doing login : " + eIO);
-            disconnect();
-            return false;
-        }*/
     }
 
     private void display(String msg) {
-        System.out.println(msg);
+        logger.info(msg);
     }
 
     public void sendTextMessage(String message) {
-        messages.add(new TextMessage(message));
-        //sendMessage(new TextMessage(message));
+        TextMessageToServer msg = new TextMessageToServer(message);
+        msg.setSessionId(this.getSessionId());
+        messages.add(msg);
+        //sendMessage(new TextMessageFromServer(message));
     }
 
     public void sendLogoutMessage() {
-        messages.add(new LogoutMessage());
+        LogoutMessage msg = new LogoutMessage();
+        msg.setSessionId(this.sessionId);
+        messages.add(msg);
         //sendMessage(new LogoutMessage());
     }
 
     public void sendUserListMessage() {
-        messages.add(new UserListMessage());
+        UserListMessage msg = new UserListMessage();
+        msg.setSessionId(this.sessionId);
+        messages.add(msg);
         //sendMessage(new UserListMessage());
     }
 
-    public void sendLoginMessage() {
-        messages.add(new LoginMessage(this));
-        //sendMessage(new LoginMessage(this));
-    }
+/*    public void sendErrorMessage() {
+        messages.add(new ClientErrorMessage());
+    }*/
 
-    private void sendMessage(ChatMessage msg) {
+    private void sendMessage(Message msg) {
         try {
             outputStream.writeObject(msg);
         } catch(IOException e) {
@@ -85,7 +89,7 @@ public class ObjectStreamClient extends Client{
         }
     }
 
-    private void disconnect() {
+    public void disconnect() {
         try {
             if(inputStream != null) {
                 inputStream.close();
@@ -122,6 +126,8 @@ public class ObjectStreamClient extends Client{
         Client client = new ObjectStreamClient(serverAddress, portNumber, userName);
         ClientFrame clientFrame = new ClientFrame(client);
         client.addHandler(clientFrame.new MessageUpdater());
+
+        //client.start();
     }
 
     class ReadFromServer implements Runnable {
@@ -129,10 +135,9 @@ public class ObjectStreamClient extends Client{
         public void run() {
             while(true) {
                 try {
-                    ChatMessage message = (ChatMessage) inputStream.readObject();
+                    ServerMessage message = (ServerMessage) inputStream.readObject();
+                    message.interpret(ObjectStreamClient.this);
                     notifyValueChanged(message);
-                    System.out.println(message.getMessage());
-                    System.out.print("> ");
                 } catch (IOException e) {
                     display("Server has closed the connection: " + e);
                     break;
@@ -147,19 +152,9 @@ public class ObjectStreamClient extends Client{
         @Override
         public void run() {
             try {
-                Scanner scan = new Scanner(System.in);
                 while (true) {
-                    System.out.print("> ");
-                    /*String msg = scan.nextLine();
-                    if (msg.equalsIgnoreCase("LOGOUT")) {
-                        sendLogoutMessage();
-                        break;
-                    } else if (msg.equalsIgnoreCase("WHOISIN")) {
-                        sendUserListMessage();
-                    } else {
-                        sendTextMessage(msg);
-                    }*/
-                    sendMessage(messages.take());
+                    Message message = messages.take();
+                    sendMessage(message);
                 }
             } catch (InterruptedException e) {
                 Thread.currentThread().interrupt();
