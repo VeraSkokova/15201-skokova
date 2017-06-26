@@ -1,6 +1,7 @@
 package ru.nsu.ccfit.skokova.chat;
 
 import ru.nsu.ccfit.skokova.chat.message.ChatMessage;
+import ru.nsu.ccfit.skokova.chat.message.LoginMessage;
 
 import java.io.IOException;
 import java.io.ObjectInputStream;
@@ -13,6 +14,7 @@ public class ObjectStreamConnectedClient extends ConnectedClient{
         this.socket = socket;
         this.server = server;
         this.username = username;
+        this.type = "ObjectStream";
         this.readerThread = new Thread(new Reader());
         this.writerThread = new Thread(new Writer());
         this.date = new Date().toString() + "\n";

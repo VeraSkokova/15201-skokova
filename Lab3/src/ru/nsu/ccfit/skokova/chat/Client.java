@@ -1,25 +1,30 @@
 package ru.nsu.ccfit.skokova.chat;
 
-import ru.nsu.ccfit.skokova.chat.gui.ClientFrame;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import ru.nsu.ccfit.skokova.chat.gui.ValueChangedHandler;
 import ru.nsu.ccfit.skokova.chat.message.*;
 
-import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
 import java.net.Socket;
-import java.util.Scanner;
+import java.util.ArrayList;
+import java.util.concurrent.ArrayBlockingQueue;
+import java.util.concurrent.BlockingQueue;
 
-public class Client  {
-    private ObjectInputStream inputStream;
-    private ObjectOutputStream outputStream;
-    private Socket socket;
+public abstract class Client  {
+    private static final int MESSAGES_COUNT = 10000;
+    protected Socket socket;
 
-    private String server;
-    private String username;
-    private int port;
+    protected String server;
+    protected String username;
+    protected int port;
 
-    private Thread inThread;
-    private Thread outThread;
+    protected Thread inThread;
+    protected Thread outThread;
+
+    protected BlockingQueue<ChatMessage> messages = new ArrayBlockingQueue<ChatMessage>(MESSAGES_COUNT);
+    protected ArrayList<ValueChangedHandler> handlers = new ArrayList<>();
+
+    protected Logger logger = LogManager.getLogger(Client.class);
 
     Client() {}
 
@@ -29,68 +34,33 @@ public class Client  {
         this.username = username;
     }
 
-    public boolean start() {
-        try {
-            socket = new Socket(server, port);
-        } catch(Exception ec) {
-            display("Error in connection to server:" + ec);
-            return false;
+
+    public void addHandler(ValueChangedHandler handler) {
+        if (handler != null) {
+            handlers.add(handler);
         }
-
-        String message = "Connection accepted " + socket.getInetAddress() + ":" + socket.getPort();
-        display(message);
-
-        try {
-            inputStream = new ObjectInputStream(socket.getInputStream());
-            outputStream = new ObjectOutputStream(socket.getOutputStream());
-        } catch (IOException eIO) {
-            display("Exception creating new Input/output Streams: " + eIO);
-            return false;
-        }
-
-        this.inThread = new Thread(new WriteToServer());
-        this.outThread = new Thread(new ReadFromServer());
-
-        this.inThread.start();
-        this.outThread.start();
-
-        /*try {
-            outputStream.writeObject(username);
-        } catch (IOException eIO) {
-            display("Exception doing login : " + eIO);
-            disconnect();
-            return false;
-        }*/
-        return true;
     }
 
-    private void display(String msg) {
+    public void notifyValueChanged(Object value) {
+        for (ValueChangedHandler handler : handlers) {
+            handler.handle(value);
+        }
+    }
+
+
+    public void start() {}
+
+    /*private void display(String msg) {
         System.out.println(msg);
-    }
+    }*/
 
-    public void sendMessage(ChatMessage msg) {
-        try {
-            outputStream.writeObject(msg);
-        } catch(IOException e) {
-            display("Exception writing to server: " + e.getMessage());
-        }
-    }
+    public void sendTextMessage(String message) {}
 
-    private void disconnect() {
-        try {
-            if(inputStream != null) {
-                inputStream.close();
-            }
-            if(outputStream != null) {
-                outputStream.close();
-            }
-            if(socket != null) {
-                socket.close();
-            }
-        } catch(IOException e) {
-            System.out.println(e.getMessage());
-        }
-    }
+    public void sendLogoutMessage() {}
+
+    public void sendUserListMessage() {}
+
+    private void disconnect() {}
 
     public void setServer(String server) {
         this.server = server;
@@ -104,52 +74,7 @@ public class Client  {
         this.port = port;
     }
 
-    public static void main(String[] args) {
-        // default values
-        int portNumber = 1500;
-        String serverAddress = "localhost";
-        String userName = "Anonymous";
-
-        Client client = new Client(serverAddress, portNumber, userName);
-        ClientFrame clientFrame = new ClientFrame(client);
-    }
-
-    class ReadFromServer implements Runnable {
-        @Override
-        public void run() {
-            while(true) {
-                try {
-                    ChatMessage message = (ChatMessage) inputStream.readObject();
-                    System.out.println(message.getMessage());
-                    System.out.print("> ");
-                } catch (IOException e) {
-                    display("Server has closed the connection: " + e);
-                    break;
-                } catch (ClassNotFoundException e) {
-                    System.out.println(e.getMessage());
-                }
-            }
-        }
-    }
-
-    class WriteToServer implements Runnable {
-        @Override
-        public void run() {
-            Scanner scan = new Scanner(System.in);
-            while(true) {
-                System.out.print("> ");
-                String msg = scan.nextLine();
-                if(msg.equalsIgnoreCase("LOGOUT")) {
-                    sendMessage(new LogoutMessage());
-                    break;
-                }
-                else if(msg.equalsIgnoreCase("WHOISIN")) {
-                    sendMessage(new UserListMessage());
-                }
-                else {
-                    sendMessage(new TextMessage(msg));
-                }
-            }
-        }
+    public String getUsername() {
+        return username;
     }
 }

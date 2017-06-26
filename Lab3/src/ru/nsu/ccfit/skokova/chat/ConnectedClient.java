@@ -17,6 +17,7 @@ public abstract class ConnectedClient {
     protected String username;
     protected String date;
     protected boolean isValid;
+    protected String type;
 
     protected static final Logger logger = LogManager.getLogger(ObjectStreamConnectedClient.class);
 

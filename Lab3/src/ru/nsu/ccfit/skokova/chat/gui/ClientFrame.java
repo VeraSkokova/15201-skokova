@@ -4,8 +4,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import ru.nsu.ccfit.skokova.chat.Client;
 import ru.nsu.ccfit.skokova.chat.Server;
-import ru.nsu.ccfit.skokova.chat.message.LogoutMessage;
-import ru.nsu.ccfit.skokova.chat.message.UserListMessage;
+import ru.nsu.ccfit.skokova.chat.message.TextMessage;
 
 import javax.swing.*;
 import java.awt.*;
@@ -20,6 +19,7 @@ public class ClientFrame extends JFrame {
     private JTextField serverField;
     private JTextField portField;
     private JTextField usernameField;
+    private JTextField messageField;
     private JTextArea messageArea;
 
     private JButton loginButton;
@@ -34,6 +34,8 @@ public class ClientFrame extends JFrame {
         createAndShowGUI();
         setButtons();
         setConnectionInfo();
+        setMessageField();
+        //client.addHandler(new MessageUpdater());
     }
 
     private void setConnectionInfo() {
@@ -53,14 +55,24 @@ public class ClientFrame extends JFrame {
         this.logoutButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent actionEvent) {
-                client.sendMessage(new LogoutMessage());
+                client.sendLogoutMessage();
             }
         });
 
         this.usersButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent actionEvent) {
-                client.sendMessage(new UserListMessage());
+                client.sendUserListMessage();
+            }
+        });
+    }
+
+    private void setMessageField() {
+        this.messageField.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent actionEvent) {
+                client.sendTextMessage(messageField.getText());
+                messageField.setText("");
             }
         });
     }
@@ -70,7 +82,7 @@ public class ClientFrame extends JFrame {
         //this.connectionPanel.setBackground(new Color(240, 255, 255));
         addLoginInfo();
         addChatPanel();
-        addButtonPanel();
+        addSouthPanel();
         setDefaultCloseOperation(EXIT_ON_CLOSE);
         setSize(600, 600);
         setVisible(true);
@@ -106,7 +118,7 @@ public class ClientFrame extends JFrame {
         this.add(chatPanel, BorderLayout.CENTER);
     }
 
-    private void addButtonPanel() {
+    private void addSouthPanel() {
         this.loginButton = new JButton("Login");
         this.loginButton.setBackground(new Color(32, 50, 100));
         this.loginButton.setForeground(Color.WHITE);
@@ -123,7 +135,17 @@ public class ClientFrame extends JFrame {
         buttonPanel.add(this.usersButton);
         buttonPanel.add(this.logoutButton);
 
-        this.add(buttonPanel, BorderLayout.SOUTH);
+        JPanel messagePanel = new JPanel(new GridLayout(1, 2, 1, 3));
+        JLabel messageLabel = new JLabel("Send your message");
+        this.messageField = new JTextField();
+        messagePanel.add(messageLabel);
+        messagePanel.add(this.messageField);
+
+        JPanel southPanel = new JPanel(new GridLayout(2,1));
+        southPanel.add(messagePanel);
+        southPanel.add(buttonPanel);
+
+        this.add(southPanel, BorderLayout.SOUTH);
     }
 
     class PortListener implements ActionListener {
@@ -163,6 +185,15 @@ public class ClientFrame extends JFrame {
             } catch (Exception e) {
                 logger.error(e.getMessage());
             }
+        }
+    }
+
+    public class MessageUpdater implements ValueChangedHandler {
+        @Override
+        public void handle(Object value) {
+            TextMessage msg = (TextMessage)value;
+            messageArea.append(msg.getMessage() + "\n");
+            messageArea.setCaretPosition(messageArea.getText().length() - 1);
         }
     }
 }

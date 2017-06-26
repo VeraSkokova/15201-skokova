@@ -20,6 +20,7 @@ public class Server {
     private static final AtomicInteger SESSION_ID = new AtomicInteger(1);
     private ArrayList<ConnectedClient> connectedClients = new ArrayList<>();
     private BlockingQueue<ChatMessage> messageHistory = new ArrayBlockingQueue<>(MESSAGES_COUNT);
+    private BlockingQueue<ChatMessage> requests = new ArrayBlockingQueue<>(MESSAGES_COUNT);
     private SimpleDateFormat sdf;
     private int port;
     private boolean isWorking;
@@ -36,6 +37,10 @@ public class Server {
 
     public ArrayList<ConnectedClient> getConnectedClients() {
         return connectedClients;
+    }
+
+    public BlockingQueue<ChatMessage> getRequests() {
+        return requests;
     }
 
     public void start() {
@@ -120,8 +125,8 @@ public class Server {
 
     private void connectClient(Socket socket) {
         ObjectStreamConnectedClient connectedClient = new ObjectStreamConnectedClient(socket, this, "username");
-        connectedClient.login(this);
         connectedClient.run();
+        connectedClient.login(this);
         broadcast(new TextMessage("New user logged in"));
         for (ChatMessage message : messageHistory) {
             sendMessage(message, connectedClient);
