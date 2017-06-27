@@ -146,7 +146,7 @@ public class Server {
 
     public static void main(String[] args) {
         try(BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(System.in))) {
-        ConfigParser configParser = new ConfigParser("/home/veraskokova/IdeaProjects/Chat/src/MyConfig.txt");
+        ConfigParser configParser = new ConfigParser("./src/MyConfig.txt");
         /*int portNumber = 4500;
         int anotherPortNumber = 1700;*/
         Server server = new Server(configParser);
