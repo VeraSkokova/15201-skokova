@@ -9,9 +9,7 @@ import ru.nsu.ccfit.skokova.chat.message.TextMessageFromServer;
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -23,19 +21,18 @@ public class Server {
     private BlockingQueue<Message> messageHistory = new ArrayBlockingQueue<>(MESSAGES_COUNT);
     private BlockingQueue<ChatMessage> requests = new ArrayBlockingQueue<>(MESSAGES_COUNT);
     private BlockingQueue<String> usernames = new ArrayBlockingQueue<String>(MESSAGES_COUNT);
-    private SimpleDateFormat sdf;
-    private int port;
+    private int firstPort;
+    private int secondPort;
     private boolean isWorking;
-    private Socket socket;
 
     public static final int MIN_PORT_NUMBER = 0;
     public static final int MAX_PORT_NUMBER = 65535;
 
     private static final Logger logger = LogManager.getLogger(Server.class);
 
-    public Server(int port) {
-        this.port = port;
-        this.sdf = new SimpleDateFormat("HH:mm:ss");
+    public Server(int firstPort, int secondPort) {
+        this.firstPort = firstPort;
+        this.secondPort = secondPort;
     }
 
     public ArrayList<ConnectedClient> getConnectedClients() {
@@ -53,17 +50,12 @@ public class Server {
     public void start() {
         isWorking = true;
         try {
-            ServerSocket serverSocket = new ServerSocket(port);
+            ServerSocket serverSocket = new ServerSocket(firstPort);
 
-            while (isWorking) {
-                display("Server waiting for Clients on port " + port + ".");
-
-                Socket socket = serverSocket.accept();
-                if (!isWorking)
-                    break;
-
-                connectClient(socket);
-            }
+            Thread objectThread = new Thread(new ObjectStreamAcceptor());
+            Thread xmlThread = new Thread(new XMLAcceptor());
+            objectThread.start();
+            xmlThread.start();
 
             try {
                 serverSocket.close();
@@ -75,7 +67,7 @@ public class Server {
                 display("Exception closing the server and clients: " + e);
             }
         } catch (IOException e) {
-            String msg = sdf.format(new Date()) + " Exception on new ServerSocket: " + e + "\n";
+            String msg = " Exception on new ServerSocket: " + e.getMessage() + "\n";
             display(msg);
         }
     }
@@ -83,15 +75,14 @@ public class Server {
     protected void stop() {
         isWorking = false;
         try {
-            new Socket("localhost", port);
+            new Socket("localhost", firstPort);
         } catch (IOException e) {
             logger.error(e.getMessage());
         }
     }
 
     public void display(String msg) {
-        String time = sdf.format(new Date()) + " " + msg;
-        logger.info(time);
+        logger.info(msg);
     }
 
     public synchronized void broadcast(Message message) {
@@ -126,13 +117,20 @@ public class Server {
         this.connectedClients.add(connectedClient);
     }
 
-    public Socket getSocket() {
-        return socket;
+
+
+    public void connectObjectStreamClient(Socket socket) {
+        ObjectStreamConnectedClient connectedClient = new ObjectStreamConnectedClient(socket, this);
+        //XMLConnectedClient connectedClient = new XMLConnectedClient(socket, this);
+        connectedClient.run();
+        connectedClient.login(this);
+        broadcast(new TextMessageFromServer("New user logged in", "Server"));
+        for (Message message : messageHistory) {
+            sendMessage(message, connectedClient);
+        }
     }
 
-
-    public void connectClient(Socket socket) {
-        //ObjectStreamConnectedClient connectedClient = new ObjectStreamConnectedClient(socket, this);
+    public void connectXMLClient(Socket socket) {
         XMLConnectedClient connectedClient = new XMLConnectedClient(socket, this);
         connectedClient.run();
         connectedClient.login(this);
@@ -143,8 +141,49 @@ public class Server {
     }
 
     public static void main(String[] args) {
-        int portNumber = 1500;
-        Server server = new Server(portNumber);
+        int portNumber = 4500;
+        int anotherPortNumber = 1700;
+        Server server = new Server(portNumber, anotherPortNumber);
         server.start();
+    }
+
+    class ObjectStreamAcceptor implements Runnable {
+        @Override
+        public void run() {
+            while (!Thread.interrupted()) {
+                try {
+                    ServerSocket serverSocket = new ServerSocket(firstPort);
+                    while (isWorking) {
+                        display("Server waiting for ObjectStream Clients on firstPort " + firstPort + ".");
+                        Socket socket = serverSocket.accept();
+                        if (!isWorking)
+                            break;
+                        connectObjectStreamClient(socket);
+                    }
+                } catch (IOException e) {
+                    logger.error(" Exception on new ServerSocket: " + e.getMessage());
+                }
+            }
+        }
+    }
+
+    class XMLAcceptor implements Runnable {
+        @Override
+        public void run() {
+            while (!Thread.interrupted()) {
+                try {
+                    ServerSocket serverSocket = new ServerSocket(secondPort);
+                    while (isWorking) {
+                        display("Server waiting for XMLClients on secondPort " + secondPort + ".");
+                        Socket socket = serverSocket.accept();
+                        if (!isWorking)
+                            break;
+                        connectXMLClient(socket);
+                    }
+                } catch (IOException e) {
+                    logger.error(" Exception on new ServerSocket: " + e.getMessage());
+                }
+            }
+        }
     }
 }

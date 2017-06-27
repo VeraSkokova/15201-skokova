@@ -23,22 +23,18 @@ public class XMLToMessage {
             case "command":
                 switch (temp.getAttribute("name")) {
                     case "list":
-                        logger.debug("list");
                         int sessionID = parseSimpleCommand(temp);
                         message = new UserListMessage(sessionID);
                         break;
                     case "login":
-                        logger.debug("login");
                         ClientPair clientPair = parseLogincommand(temp);
                         message = new LoginMessage(clientPair.getName(), clientPair.getType());
                         break;
                     case "logout":
-                        logger.debug("logout");
                        int sessionId = parseSimpleCommand(temp);
                        message = new LogoutMessage(sessionId);
                        break;
                     case "message":
-                        logger.debug("message");
                         MessagePair messagePair = parseMessageCommand(temp);
                         message = new TextMessageToServer(messagePair.getMessage(), messagePair.getSessionID());
                         break;

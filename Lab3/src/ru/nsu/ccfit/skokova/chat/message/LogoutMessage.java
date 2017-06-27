@@ -17,7 +17,6 @@ public class LogoutMessage extends ChatMessage implements Serializable {
         if (this.getSessionId() != connectedClient.getSessionId()) {
             server.sendMessage(new LogoutError("Authentication error"), connectedClient);
         } else {
-            logger.debug("I'm here");
             server.display(connectedClient.getUsername() + " disconnected with a LOGOUT message.");
             ClientLoggedOutMessage textMessageFromServer = new ClientLoggedOutMessage(connectedClient.getUsername());
             server.sendMessage(textMessageFromServer, connectedClient);

@@ -35,10 +35,8 @@ public class XMLMessageInterpretator {
             Node root = document.getDocumentElement();
             Element element = (Element)root;
 
-            logger.debug("Root: " + root.getNodeName());
             if (((Element) root).hasAttribute("name"))
                 logger.debug("true");
-            logger.debug(message);
 
             switch (root.getNodeName()) {
                 case "error":
@@ -65,10 +63,9 @@ public class XMLMessageInterpretator {
                     }
                     break;
                 case "success":
-                    if (element.getNextSibling() == null) {
+                    if (element.getChildNodes().item(1) == null) {
                         serverMessage = parseServerSuccessMessage(element);
                     } else {
-                        logger.debug("ssssss");
                         switch (element.getChildNodes().item(1).getNodeName()) {
                             case "listusers":
                                 serverMessage = parseUserListSuccess(element);
@@ -113,15 +110,8 @@ public class XMLMessageInterpretator {
     }
 
     private ClientLoggedOutMessage parseUserLogoutEvent(Element element) {
-        //logger.debug("is inwoked");
         String username = element.getElementsByTagName("name").item(0).getTextContent();
         ClientLoggedOutMessage clientLoggedOutMessage = new ClientLoggedOutMessage(username);
-        /*if (client.getUsername().startsWith(username)) {
-            logger.debug("logg here");
-            client.setLoggedIn(false);
-            client.interrupt();
-            client.disconnect();
-        }*/
         return clientLoggedOutMessage;
     }
 
@@ -135,7 +125,6 @@ public class XMLMessageInterpretator {
         int sessionID = Integer.parseInt(sessionId);
         client.setLoggedIn(true);
         client.setSessionId(sessionID);
-        logger.debug("interpr :" + client.getSessionId());
         LoginSuccess loginSuccess = new LoginSuccess(sessionID);
         loginSuccess.setMessage("Welcome!");
         return loginSuccess;
@@ -159,7 +148,7 @@ public class XMLMessageInterpretator {
                         for (int k = 0; k < users.getLength(); k++) {
                             Node user = users.item(k);
                             if (user.getNodeType() != Node.TEXT_NODE) {
-                                userList += user.getNodeName() + " " + user.getChildNodes().item(0).getTextContent();
+                                userList += user.getNodeName() + " " + user.getChildNodes().item(0).getTextContent() + "\n";
                             }
                         }
                     }

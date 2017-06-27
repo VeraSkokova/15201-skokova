@@ -52,7 +52,7 @@ public class ObjectStreamConnectedClient extends ConnectedClient{
 
     public void login(Server server) {
         this.setSessionId(server.setUserSessionId());
-        server.addClient(this);
+        //server.addClient(this);
     }
 
     public Socket getSocket() {

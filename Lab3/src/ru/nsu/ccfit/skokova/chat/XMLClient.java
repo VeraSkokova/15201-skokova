@@ -109,7 +109,7 @@ public class XMLClient extends Client {
     }
 
     public static void main(String[] args) {
-        int portNumber = 1500;
+        int portNumber = 1700;
         String serverAddress = "localhost";
         String userName = "Anonymous";
 

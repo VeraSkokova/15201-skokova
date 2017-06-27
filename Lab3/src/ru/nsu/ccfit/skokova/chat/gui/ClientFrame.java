@@ -207,7 +207,6 @@ public class ClientFrame extends JFrame {
             Message msg = (Message)value;
             messageArea.append(msg.getMessage() + "\n");
             messageArea.setCaretPosition(messageArea.getText().length() - 1);
-            logger.debug("Have to update: " + msg + " " + msg.getMessage());
         }
     }
 

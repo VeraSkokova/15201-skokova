@@ -26,7 +26,7 @@ public class ObjectStreamClient extends Client{
             logger.debug("Client port: " + port);
         } catch(Exception ec) {
             display("Error in connection to server:" + ec.getMessage());
-            logger.error("Error in connection to server:" + ec.getMessage());
+            //logger.error("Error in connection to server:" + ec.getMessage());
         }
 
         try {
@@ -37,14 +37,14 @@ public class ObjectStreamClient extends Client{
             return;
         }
 
-        messages.add(new LoginMessage(this));
+        messages.add(new LoginMessage(this.username, "ObjectStream"));
 
         try {
             this.inputStream = new ObjectInputStream(socket.getInputStream());
             this.outputStream = new ObjectOutputStream(socket.getOutputStream());
         } catch (IOException e) {
             display("Exception creating new Input/output Streams: " + e.getMessage());
-            logger.error("Exception creating new Input/output Streams: " + e.getMessage());
+            //logger.error("Exception creating new Input/output Streams: " + e.getMessage());
         }
 
         this.inThread = new Thread(new ObjectStreamClient.WriteToServer());
@@ -103,7 +103,7 @@ public class ObjectStreamClient extends Client{
     }
 
     public static void main(String[] args) {
-        int portNumber = 1500;
+        int portNumber = 4500;
         String serverAddress = "localhost";
         String userName = "Anonymous";
 
