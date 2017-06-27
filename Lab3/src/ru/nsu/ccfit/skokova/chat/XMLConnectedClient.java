@@ -65,7 +65,6 @@ public class XMLConnectedClient extends ConnectedClient {
         XMLToMessage xmlToMessage = new XMLToMessage();
         @Override
         public void run() {
-            logger.debug("Sending message to Server");
             try (DataInputStream inputStream = new DataInputStream(socket.getInputStream())) {
                 ByteReader byteReader = new ByteReader(inputStream);
                 documentBuilder = DocumentBuilderFactory.newInstance().newDocumentBuilder();

@@ -10,6 +10,10 @@ import java.net.Socket;
 import java.nio.charset.StandardCharsets;
 
 public class XMLClient extends Client {
+    static {
+        System.getProperties().setProperty("log4j.configurationFile", "src/log4j2.xml");
+    }
+
     private DataInputStream inputStream;
     private DataOutputStream outputStream;
     private XMLMessageCreator xmlMessageCreator = new XMLMessageCreator();

@@ -13,5 +13,6 @@ public class LogoutSuccess extends ServerMessage {
         client.setLoggedIn(false);
         client.interrupt();
         client.disconnect();
+        client.notifyValueChanged(client.isLoggedIn());
     }
 }

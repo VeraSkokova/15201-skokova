@@ -9,7 +9,11 @@ import java.io.ObjectOutputStream;
 import java.io.Serializable;
 import java.net.Socket;
 
-public class ObjectStreamClient extends Client{
+public class ObjectStreamClient extends Client {
+    static {
+        System.getProperties().setProperty("log4j.configurationFile", "src/log4j2.xml");
+    }
+
     private ObjectInputStream inputStream;
     private ObjectOutputStream outputStream;
 
@@ -26,7 +30,7 @@ public class ObjectStreamClient extends Client{
             logger.debug("Client port: " + port);
         } catch(Exception ec) {
             display("Error in connection to server:" + ec.getMessage());
-            //logger.error("Error in connection to server:" + ec.getMessage());
+            logger.error("Error in connection to server:" + ec.getMessage());
         }
 
         try {
@@ -37,14 +41,14 @@ public class ObjectStreamClient extends Client{
             return;
         }
 
-        messages.add(new LoginMessage(this.username, "ObjectStream"));
+        messages.add(new LoginMessage(this));
 
         try {
             this.inputStream = new ObjectInputStream(socket.getInputStream());
             this.outputStream = new ObjectOutputStream(socket.getOutputStream());
         } catch (IOException e) {
             display("Exception creating new Input/output Streams: " + e.getMessage());
-            //logger.error("Exception creating new Input/output Streams: " + e.getMessage());
+            logger.error("Exception creating new Input/output Streams: " + e.getMessage());
         }
 
         this.inThread = new Thread(new ObjectStreamClient.WriteToServer());

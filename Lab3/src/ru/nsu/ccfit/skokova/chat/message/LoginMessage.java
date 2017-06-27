@@ -6,7 +6,6 @@ import ru.nsu.ccfit.skokova.chat.Server;
 
 public class LoginMessage extends ChatMessage {
     private String username;
-    private String type;
 
     public LoginMessage(Client client) {
         this.username = client.getUsername();
@@ -14,7 +13,6 @@ public class LoginMessage extends ChatMessage {
 
     public LoginMessage(String username, String type) {
         this.username = username;
-        this.type = type;
     }
 
     public void process(Server server) {

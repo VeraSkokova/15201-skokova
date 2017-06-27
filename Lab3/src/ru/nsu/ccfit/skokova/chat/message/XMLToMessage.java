@@ -43,7 +43,6 @@ public class XMLToMessage {
             default:
                 break;
         }
-        logger.debug("After convertion: " + message + " " + message.getMessage());
         return message;
     }
 

@@ -6,7 +6,9 @@ import ru.nsu.ccfit.skokova.chat.message.ChatMessage;
 import ru.nsu.ccfit.skokova.chat.message.Message;
 import ru.nsu.ccfit.skokova.chat.message.TextMessageFromServer;
 
+import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.ArrayList;
@@ -15,6 +17,10 @@ import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.atomic.AtomicInteger;
 
 public class Server {
+    static {
+        System.getProperties().setProperty("log4j.configurationFile", "src/log4j2.xml");
+    }
+
     private static final int MESSAGES_COUNT = 10000;
     private static final AtomicInteger SESSION_ID = new AtomicInteger(1);
     private ArrayList<ConnectedClient> connectedClients = new ArrayList<>();
@@ -27,6 +33,9 @@ public class Server {
 
     public static final int MIN_PORT_NUMBER = 0;
     public static final int MAX_PORT_NUMBER = 65535;
+
+    private Thread objectThread;
+    private Thread xmlThread;
 
     private static final Logger logger = LogManager.getLogger(Server.class);
 
@@ -49,36 +58,20 @@ public class Server {
 
     public void start() {
         isWorking = true;
-        try {
-            ServerSocket serverSocket = new ServerSocket(firstPort);
-
-            Thread objectThread = new Thread(new ObjectStreamAcceptor());
-            Thread xmlThread = new Thread(new XMLAcceptor());
-            objectThread.start();
-            xmlThread.start();
-
-            try {
-                serverSocket.close();
-                for (ConnectedClient connectedClient : connectedClients) {
-                    connectedClient.interrupt();
-                    connectedClient.close();
-                }
-            } catch (Exception e) {
-                display("Exception closing the server and clients: " + e);
-            }
-        } catch (IOException e) {
-            String msg = " Exception on new ServerSocket: " + e.getMessage() + "\n";
-            display(msg);
-        }
+        objectThread = new Thread(new ObjectStreamAcceptor());
+        xmlThread = new Thread(new XMLAcceptor());
+        objectThread.start();
+        xmlThread.start();
     }
 
     protected void stop() {
         isWorking = false;
-        try {
-            new Socket("localhost", firstPort);
-        } catch (IOException e) {
-            logger.error(e.getMessage());
+        for (ConnectedClient connectedClient : connectedClients) {
+            connectedClient.interrupt();
+            connectedClient.close();
         }
+        objectThread.interrupt();
+        xmlThread.interrupt();
     }
 
     public void display(String msg) {
@@ -117,11 +110,16 @@ public class Server {
         this.connectedClients.add(connectedClient);
     }
 
+    public void setFirstPort(int firstPort) {
+        this.firstPort = firstPort;
+    }
 
+    public void setSecondPort(int secondPort) {
+        this.secondPort = secondPort;
+    }
 
     public void connectObjectStreamClient(Socket socket) {
         ObjectStreamConnectedClient connectedClient = new ObjectStreamConnectedClient(socket, this);
-        //XMLConnectedClient connectedClient = new XMLConnectedClient(socket, this);
         connectedClient.run();
         connectedClient.login(this);
         broadcast(new TextMessageFromServer("New user logged in", "Server"));
@@ -145,6 +143,13 @@ public class Server {
         int anotherPortNumber = 1700;
         Server server = new Server(portNumber, anotherPortNumber);
         server.start();
+        try(BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(System.in))) {
+            if (bufferedReader.readLine().equals("stop")) {
+                server.stop();
+            }
+        } catch (IOException e) {
+            logger.warn(e.getMessage());
+        }
     }
 
     class ObjectStreamAcceptor implements Runnable {

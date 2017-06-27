@@ -24,7 +24,6 @@ public class TextMessageToServer extends ChatMessage implements Serializable {
         } else {
             server.sendMessage(new TextMessageToServerSuccess(""), connectedClient);
             TextMessageFromServer textMessage = new TextMessageFromServer(message, connectedClient.getUsername());
-            logger.debug("Processing: created " + textMessage + " " + textMessage.getMessage());
             server.broadcast(textMessage);
             server.saveMessage(textMessage);
         }

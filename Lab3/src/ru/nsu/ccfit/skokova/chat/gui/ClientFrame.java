@@ -49,21 +49,33 @@ public class ClientFrame extends JFrame {
         this.loginButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent actionEvent) {
-                client.start();
+                if (!client.isLoggedIn()) {
+                    client.start();
+                } else {
+                    logger.warn("Bad request");
+                }
             }
         });
 
         this.logoutButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent actionEvent) {
-                client.sendLogoutMessage();
+                if (client.isLoggedIn()) {
+                    client.sendLogoutMessage();
+                } else {
+                    logger.warn("Bad request");
+                }
             }
         });
 
         this.usersButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent actionEvent) {
-                client.sendUserListMessage();
+                if (client.isLoggedIn()) {
+                    client.sendUserListMessage();
+                } else {
+                    logger.warn("Bad request");
+                }
             }
         });
     }
@@ -84,7 +96,7 @@ public class ClientFrame extends JFrame {
         addLoginInfo();
         addChatPanel();
         addSouthPanel();
-        setDefaultCloseOperation(EXIT_ON_CLOSE);
+        setDefaultCloseOperation(DISPOSE_ON_CLOSE);
         setSize(600, 600);
         setVisible(true);
     }
@@ -156,11 +168,15 @@ public class ClientFrame extends JFrame {
                 if (portField.getText().isEmpty()) {
                     portField.setText("Enter port number");
                 } else {
-                    int value = Integer.parseInt(portField.getText());
-                    if ((value < Server.MIN_PORT_NUMBER) || (value > Server.MAX_PORT_NUMBER)) {
-                        throw new NumberFormatException("Incorrect value");
+                    if (!client.isLoggedIn()) {
+                        int value = Integer.parseInt(portField.getText());
+                        if ((value < Server.MIN_PORT_NUMBER) || (value > Server.MAX_PORT_NUMBER)) {
+                            throw new NumberFormatException("Incorrect value");
+                        }
+                        client.setPort(value);
+                    } else {
+                        logger.warn("Bad request");
                     }
-                    client.setPort(value);
                 }
             } catch (NumberFormatException e) {
                 portField.setForeground(Color.RED);
@@ -173,12 +189,16 @@ public class ClientFrame extends JFrame {
         @Override
         public void actionPerformed(ActionEvent actionEvent) {
             try {
-                if (serverField.getText().isEmpty()) {
-                    serverField.setText("Enter server address");
+                if (!client.isLoggedIn()) {
+                    if (serverField.getText().isEmpty()) {
+                        serverField.setText("Enter server address");
+                    } else {
+                        String value = serverField.getText();
+                        client.setServer(value);
+                    }
                 } else {
-                    String value = serverField.getText();
-                    client.setServer(value);
-                };
+                    logger.warn("Bad request");
+                }
             } catch (Exception e) {
                 logger.error(e.getMessage());
             }
@@ -204,10 +224,22 @@ public class ClientFrame extends JFrame {
     public class MessageUpdater implements ValueChangedHandler {
         @Override
         public void handle(Object value) {
-            Message msg = (Message)value;
-            messageArea.append(msg.getMessage() + "\n");
-            messageArea.setCaretPosition(messageArea.getText().length() - 1);
+            if (client.isLoggedIn()) {
+                Message msg = (Message) value;
+                messageArea.append(msg.getMessage() + "\n");
+                messageArea.setCaretPosition(messageArea.getText().length() - 1);
+                logger.debug("Have to update: " + msg + " " + msg.getMessage());
+            } else {
+                logger.warn("Bad request");
+            }
         }
+    }
+
+    public void dispose() {
+        client.sendLogoutMessage();
+        client.disconnect();
+        client.interrupt();
+        System.exit(0);
     }
 
 }

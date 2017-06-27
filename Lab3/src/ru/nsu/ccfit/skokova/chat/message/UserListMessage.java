@@ -22,10 +22,10 @@ public class UserListMessage extends ChatMessage implements Serializable {
             } else {
                 String message = "List of the users\n";
                 for (int i = 0; i < server.getConnectedClients().size(); ++i) {
-                    ConnectedClient connectedClient = server.getConnectedClients().get(i);
-                    message += Integer.toString(i + 1)  + "." + " " + connectedClient.getUsername() + " " + connectedClient.getType() + "\n";
-                    usernames.add(connectedClient.getUsername());
-                    types.add(connectedClient.getType());
+                    ConnectedClient ct = server.getConnectedClients().get(i);
+                    message += Integer.toString(i + 1)  + "." + " " + ct.getUsername() + " " + ct.getType() + "\n";
+                    usernames.add(ct.getUsername());
+                    types.add(ct.getType());
                 }
                 UserListSuccess userListSuccess = new UserListSuccess(message);
                 userListSuccess.setUsernames(usernames);
