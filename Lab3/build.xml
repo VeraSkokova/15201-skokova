@@ -33,7 +33,7 @@
 </target>
 
 <target name="ObjectStreamClient.jar" description="make jar file" depends="compile">
-   <jar jarfile="Server.jar" basedir="build/main">
+   <jar jarfile="ObjectStreamClient.jar" basedir="build/main">
      <zipgroupfileset dir="${lib.dir}" includes="*.jar" />
        <manifest>
            <attribute name="Main-Class" value="ru.nsu.ccfit.skokova.chat.ObjectStreamClient" />
@@ -42,7 +42,7 @@
 </target>
 
 <target name="XMLClient.jar" description="make jar file" depends="compile">
-   <jar jarfile="Server.jar" basedir="build/main">
+   <jar jarfile="XMLClient.jar" basedir="build/main">
      <zipgroupfileset dir="${lib.dir}" includes="*.jar" />
        <manifest>
            <attribute name="Main-Class" value="ru.nsu.ccfit.skokova.chat.XMLClient" />
