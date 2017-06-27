@@ -16,4 +16,8 @@ public class LoginSuccess extends ServerMessage {
         logger.debug("nc :" + client.getSessionId());
         setMessage("Welcome!");
     }
+
+    public int getSessionId() {
+        return sessionId;
+    }
 }

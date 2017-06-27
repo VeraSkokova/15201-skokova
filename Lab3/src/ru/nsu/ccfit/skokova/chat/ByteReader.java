@@ -15,18 +15,19 @@ public class ByteReader {
         this.inputStream = inputStream;
     }
 
-    public byte[] readMessage() {
+    public byte[] readMessage() throws IOException {
         byte[] message = null;
-        try {
-            int length = inputStream.readInt();
+        int length = inputStream.readInt();
+        logger.debug("length: " + length);
+        if (length < 0) {
+            logger.debug("Can't read");
+        } else {
             int read = 0;
             message = new byte[length];
             while (read < length) {
                 int temp = inputStream.read(message, read, length - read);
                 read += temp;
             }
-        } catch (IOException e) {
-            logger.error("Error in reading message: " + e.getMessage());
         }
         return message;
     }

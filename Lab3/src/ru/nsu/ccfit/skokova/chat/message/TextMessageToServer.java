@@ -12,12 +12,18 @@ public class TextMessageToServer extends ChatMessage implements Serializable {
         this.message = message;
     }
 
+    public TextMessageToServer(String message, int sessionId) {
+        super(sessionId);
+        this.message = message;
+    }
+
     public void process(Server server) {
         if (this.getSessionId() != connectedClient.getSessionId()) {
             server.sendMessage(new TextMessageToServerError("Authentication error"), connectedClient);
+            logger.debug(this.getSessionId() + " != " + connectedClient.getSessionId());
         } else {
             server.sendMessage(new TextMessageToServerSuccess(""), connectedClient);
-            TextMessageFromServer textMessage = new TextMessageFromServer(connectedClient.getUsername() + ": " + message);
+            TextMessageFromServer textMessage = new TextMessageFromServer(message, connectedClient.getUsername());
             server.broadcast(textMessage);
             server.saveMessage(textMessage);
         }

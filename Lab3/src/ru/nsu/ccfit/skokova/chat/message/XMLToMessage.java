@@ -1,32 +1,54 @@
 package ru.nsu.ccfit.skokova.chat.message;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import ru.nsu.ccfit.skokova.chat.ClientPair;
 import ru.nsu.ccfit.skokova.chat.MessagePair;
+import ru.nsu.ccfit.skokova.chat.Server;
 
 public class XMLToMessage {
-    public Message parseMessage(Document document) {
+    private static final Logger logger = LogManager.getLogger(XMLToMessage.class);
+
+    public ChatMessage parseMessage(Document document) {
+        logger.debug("Started conversion");
+        ChatMessage message = null;
         Node root = document.getDocumentElement();
         Element temp = (Element)root;
+        logger.debug(root.getNodeName());
+        logger.debug(temp.getAttribute("name"));
         switch (root.getNodeName()) {
             case "command":
                 switch (temp.getAttribute("name")) {
                     case "list":
+                        logger.debug("list");
                         int sessionID = parseSimpleCommand(temp);
-
+                        message = new UserListMessage(sessionID);
+                        break;
                     case "login":
+                        logger.debug("login");
                         ClientPair clientPair = parseLogincommand(temp);
-
+                        message = new LoginMessage(clientPair.getName(), clientPair.getType());
+                        break;
                     case "logout":
+                        logger.debug("logout");
+                       int sessionId = parseSimpleCommand(temp);
+                       message = new LogoutMessage(sessionId);
+                       break;
                     case "message":
+                        logger.debug("message");
+                        MessagePair messagePair = parseMessageCommand(temp);
+                        message = new TextMessageToServer(messagePair.getMessage(), messagePair.getSessionID());
+                        break;
                 }
                 break;
             default:
                 break;
         }
-        return new TextMessageFromServer("a"); /////!!!!!!!!
+        logger.debug("After convertion: " + message + " " + message.getMessage());
+        return message;
     }
 
     private int parseSimpleCommand(Element element) {

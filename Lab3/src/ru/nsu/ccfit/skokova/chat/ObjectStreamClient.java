@@ -22,6 +22,8 @@ public class ObjectStreamClient extends Client{
     public void start() {
         try {
             socket = new Socket(server, port);
+            logger.debug("Client server: " + server);
+            logger.debug("Client port: " + port);
         } catch(Exception ec) {
             display("Error in connection to server:" + ec.getMessage());
             logger.error("Error in connection to server:" + ec.getMessage());
@@ -77,9 +79,6 @@ public class ObjectStreamClient extends Client{
         //sendMessage(new UserListMessage());
     }
 
-/*    public void sendErrorMessage() {
-        messages.add(new ClientErrorMessage());
-    }*/
 
     private void sendMessage(Message msg) {
         try {
@@ -89,21 +88,7 @@ public class ObjectStreamClient extends Client{
         }
     }
 
-    public void disconnect() {
-        try {
-            if(inputStream != null) {
-                inputStream.close();
-            }
-            if(outputStream != null) {
-                outputStream.close();
-            }
-            if(socket != null) {
-                socket.close();
-            }
-        } catch(IOException e) {
-            System.out.println(e.getMessage());
-        }
-    }
+    public void disconnect() {}
 
     public void setServer(String server) {
         this.server = server;
@@ -118,7 +103,6 @@ public class ObjectStreamClient extends Client{
     }
 
     public static void main(String[] args) {
-        // default values
         int portNumber = 1500;
         String serverAddress = "localhost";
         String userName = "Anonymous";

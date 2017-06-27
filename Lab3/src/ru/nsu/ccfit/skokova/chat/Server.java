@@ -95,10 +95,6 @@ public class Server {
     }
 
     public synchronized void broadcast(Message message) {
-        String time = sdf.format(new Date());
-        String messageLf = time + " " + message.getMessage() + "\n";
-        logger.info(messageLf);
-
         for (ConnectedClient connectedClient : connectedClients) {
             if (connectedClient.isValid()) {
                 sendMessage(message, connectedClient);
@@ -126,7 +122,7 @@ public class Server {
         return SESSION_ID.getAndIncrement();
     }
 
-    public synchronized void addClient(ObjectStreamConnectedClient connectedClient) {
+    public synchronized void addClient(ConnectedClient connectedClient) {
         this.connectedClients.add(connectedClient);
     }
 
@@ -134,15 +130,13 @@ public class Server {
         return socket;
     }
 
-    public void check(TextMessageFromServer message) {
-
-    }
 
     public void connectClient(Socket socket) {
-        ObjectStreamConnectedClient connectedClient = new ObjectStreamConnectedClient(socket, this);
+        //ObjectStreamConnectedClient connectedClient = new ObjectStreamConnectedClient(socket, this);
+        XMLConnectedClient connectedClient = new XMLConnectedClient(socket, this);
         connectedClient.run();
         connectedClient.login(this);
-        //broadcast(new TextMessageFromServer("New user logged in"));
+        broadcast(new TextMessageFromServer("New user logged in", "Server"));
         for (Message message : messageHistory) {
             sendMessage(message, connectedClient);
         }

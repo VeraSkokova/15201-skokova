@@ -93,7 +93,7 @@ public class ObjectStreamConnectedClient extends ConnectedClient{
                     outputStream.writeObject(message);
                 }
             } catch (IOException e) {
-                logger.error("Can't create an outputStream" + e.getMessage());
+                logger.info("Can't create an outputStream" + e.getMessage());
             } catch (InterruptedException e) {
                 Thread.currentThread().interrupt();
                 logger.warn("Writer was interrupted");

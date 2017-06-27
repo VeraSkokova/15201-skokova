@@ -19,6 +19,10 @@ public abstract class ChatMessage extends Message {
         super(connectedClient);
     }
 
+    public ChatMessage(int sessionId) {
+        this.sessionId = sessionId;
+    }
+
     public String getMessage() {
         return message;
     }

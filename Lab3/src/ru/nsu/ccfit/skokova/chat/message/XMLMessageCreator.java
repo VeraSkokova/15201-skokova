@@ -65,7 +65,13 @@ public class XMLMessageCreator {
                 "</event>";
     }
 
-    public String createLogoutMessage(String username) {
+    public String createLogoutMessage(String sessionId) {
+        return "<command name=\"logout\">\n" +
+                "<session>" + sessionId + "</session>\n" +
+                "</command>";
+    }
+
+    public String createClientLoggedOutMessage(String username) {
         return "<event name=\"userlogout\">\n" +
                 "<name>" + username + "</name>\n" +
                 "</event>";
