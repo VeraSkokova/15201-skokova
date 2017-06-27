@@ -13,7 +13,6 @@ public class LoginSuccess extends ServerMessage {
     public void interpret(Client client) {
         client.setLoggedIn(true);
         client.setSessionId(this.sessionId);
-        logger.debug("nc :" + client.getSessionId());
         setMessage("Welcome!");
     }
 

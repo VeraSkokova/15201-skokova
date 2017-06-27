@@ -74,9 +74,7 @@ public class XMLClient extends Client {
 
     private void sendMessage(String msg) {
         try {
-            logger.debug("Writing " + msg);
             outputStream.writeInt(msg.getBytes(StandardCharsets.UTF_8).length);
-            logger.debug("Length: " + msg.getBytes(StandardCharsets.UTF_8).length);
             outputStream.write(msg.getBytes(StandardCharsets.UTF_8));
             outputStream.flush();
         } catch(IOException e) {

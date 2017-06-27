@@ -13,12 +13,9 @@ public class XMLToMessage {
     private static final Logger logger = LogManager.getLogger(XMLToMessage.class);
 
     public ChatMessage parseMessage(Document document) {
-        logger.debug("Started conversion");
         ChatMessage message = null;
         Node root = document.getDocumentElement();
         Element temp = (Element)root;
-        logger.debug(root.getNodeName());
-        logger.debug(temp.getAttribute("name"));
         switch (root.getNodeName()) {
             case "command":
                 switch (temp.getAttribute("name")) {

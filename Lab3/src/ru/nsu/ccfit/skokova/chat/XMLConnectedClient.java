@@ -74,7 +74,6 @@ public class XMLConnectedClient extends ConnectedClient {
                     }
                     byte[] message = byteReader.readMessage();
                     String msg = new String(message);
-                    logger.debug("Received " + msg);
                     Document document = documentBuilder.parse(new InputSource(new ByteArrayInputStream(msg.getBytes(StandardCharsets.UTF_8))));
                     ChatMessage chatMessage = xmlToMessage.parseMessage(document);
                     chatMessage.setConnectedClient(XMLConnectedClient.this);
@@ -98,7 +97,6 @@ public class XMLConnectedClient extends ConnectedClient {
             try (DataOutputStream outputStream = new DataOutputStream(socket.getOutputStream())) {
                 while (!Thread.interrupted()) {
                     Message message = messages.take();
-                    logger.debug("Message: " + message + " " + message.getMessage());
                     message.setConnectedClient(XMLConnectedClient.this);
 
                     String msg = messageToXML.parseMessage((ServerMessage) message);

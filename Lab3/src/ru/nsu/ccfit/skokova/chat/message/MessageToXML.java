@@ -10,8 +10,6 @@ public class MessageToXML {
     private XMLMessageCreator xmlMessageCreator = new XMLMessageCreator();
 
     public String parseMessage(ServerMessage serverMessage) {
-        logger.debug("Started conversion from Message to XML");
-        logger.debug(serverMessage.getMessage());
         String result = "";
         switch (serverMessage.getClass().getSimpleName()) {
             case "LoginError":
@@ -43,7 +41,6 @@ public class MessageToXML {
                 result = xmlMessageCreator.createServerMessage(textMessageFromServer.getSentMessage(), textMessageFromServer.getSender());
                 break;
         }
-        logger.debug(result);
         return result;
     }
 }

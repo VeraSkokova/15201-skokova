@@ -27,18 +27,12 @@ public class XMLMessageInterpretator {
     }
 
     public ServerMessage interpret(String message) {
-        logger.debug("Started interpretation");
         ServerMessage serverMessage = null;
         try {
             DocumentBuilder documentBuilder = DocumentBuilderFactory.newInstance().newDocumentBuilder();
             Document document = documentBuilder.parse(new InputSource(new ByteArrayInputStream(message.getBytes(StandardCharsets.UTF_8))));
             Node root = document.getDocumentElement();
             Element element = (Element)root;
-
-            logger.debug("Root: " + root.getNodeName());
-            if (((Element) root).hasAttribute("name"))
-                logger.debug("true");
-            logger.debug(message);
 
             switch (root.getNodeName()) {
                 case "error":
@@ -127,7 +121,6 @@ public class XMLMessageInterpretator {
         int sessionID = Integer.parseInt(sessionId);
         client.setLoggedIn(true);
         client.setSessionId(sessionID);
-        //logger.debug("interpr :" + client.getSessionId());
         LoginSuccess loginSuccess = new LoginSuccess(sessionID);
         loginSuccess.setMessage("Welcome!");
         return loginSuccess;

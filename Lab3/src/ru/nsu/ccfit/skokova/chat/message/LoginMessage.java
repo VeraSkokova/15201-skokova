@@ -16,14 +16,12 @@ public class LoginMessage extends ChatMessage {
     }
 
     public void process(Server server) {
-        logger.debug("Here!!!");
         if (server.getUsernames().contains(this.username)) {
             server.sendMessage(new LoginError("This username is busy, try another"), connectedClient);
             connectedClient.interrupt();
             connectedClient.close();
             server.removeClient(connectedClient);
         } else {
-            logger.debug(this.username);
             connectedClient.setUsername(this.username);
             connectedClient.setSessionId(server.setUserSessionId());
             server.addClient(connectedClient);

@@ -44,6 +44,11 @@ public class Server {
         this.secondPort = secondPort;
     }
 
+    public Server(ConfigParser configParser) {
+        this.firstPort = ConfigParser.map.get("ObjectPort");
+        this.secondPort = ConfigParser.map.get("XMLPort");
+    }
+
     public ArrayList<ConnectedClient> getConnectedClients() {
         return connectedClients;
     }
@@ -72,6 +77,7 @@ public class Server {
         }
         objectThread.interrupt();
         xmlThread.interrupt();
+        System.exit(0);
     }
 
     public void display(String msg) {
@@ -139,15 +145,15 @@ public class Server {
     }
 
     public static void main(String[] args) {
-        int portNumber = 4500;
-        int anotherPortNumber = 1700;
-        Server server = new Server(portNumber, anotherPortNumber);
-        server.start();
         try(BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(System.in))) {
-            if (bufferedReader.readLine().equals("stop")) {
-                server.stop();
-            }
-        } catch (IOException e) {
+        ConfigParser configParser = new ConfigParser("/home/veraskokova/IdeaProjects/Chat/src/MyConfig.txt");
+        /*int portNumber = 4500;
+        int anotherPortNumber = 1700;*/
+        Server server = new Server(configParser);
+        server.start();
+        while (bufferedReader.readLine().compareTo("stop") != 0);
+        server.stop();
+        } catch (IOException | BadParseException e) {
             logger.warn(e.getMessage());
         }
     }
