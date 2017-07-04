@@ -17,7 +17,7 @@ public class TextMessageToServer extends ChatMessage implements Serializable {
         this.message = message;
     }
 
-    public void process(Server server) {
+    public void process(Server server, ConnectedClient connectedClient) {
         if (this.getSessionId() != connectedClient.getSessionId()) {
             server.sendMessage(new TextMessageToServerError("Authentication error"), connectedClient);
             logger.debug(this.getSessionId() + " != " + connectedClient.getSessionId());

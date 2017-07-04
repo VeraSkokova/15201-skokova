@@ -94,6 +94,10 @@ public class XMLClient extends Client {
         this.port = port;
     }
 
+    public int getPort() {
+        return this.port;
+    }
+
     public void disconnect() {
         try {
             if(inputStream != null) {

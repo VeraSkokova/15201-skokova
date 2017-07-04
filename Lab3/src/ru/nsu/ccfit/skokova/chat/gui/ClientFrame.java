@@ -105,7 +105,7 @@ public class ClientFrame extends JFrame {
         this.connectionPanel = new JPanel(new GridLayout(3,1));
         JPanel serverAndPortPanel = new JPanel(new GridLayout(1, 5, 1, 3));
         this.serverField = new JTextField("localhost");
-        this.portField = new JTextField("1500");
+        this.portField = new JTextField(client.getPort());
         this.serverField.setHorizontalAlignment(SwingConstants.LEFT);
         this.portField.setHorizontalAlignment(SwingConstants.RIGHT);
         serverAndPortPanel.add(this.serverField);

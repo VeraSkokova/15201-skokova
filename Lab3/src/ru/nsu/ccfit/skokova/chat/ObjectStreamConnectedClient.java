@@ -67,8 +67,9 @@ public class ObjectStreamConnectedClient extends ConnectedClient{
                         break;
                     }
                     Message message = (Message) inputStream.readObject();
-                    message.setConnectedClient(ObjectStreamConnectedClient.this);
-                    message.process(server);
+                    //message.setConnectedClient(ObjectStreamConnectedClient.this);
+                    message.setUsername(ObjectStreamConnectedClient.this.getUsername());
+                    message.process(server, ObjectStreamConnectedClient.this);
                 }
                 if (Thread.currentThread().isInterrupted()) {
                     System.out.println("Reader was interrupted");

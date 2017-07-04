@@ -76,9 +76,9 @@ public class XMLConnectedClient extends ConnectedClient {
                     String msg = new String(message);
                     Document document = documentBuilder.parse(new InputSource(new ByteArrayInputStream(msg.getBytes(StandardCharsets.UTF_8))));
                     ChatMessage chatMessage = xmlToMessage.parseMessage(document);
-                    chatMessage.setConnectedClient(XMLConnectedClient.this);
+                    chatMessage.setUsername(XMLConnectedClient.this.getUsername());
                     chatMessage.setSessionId(sessionId);
-                    chatMessage.process(server);
+                    chatMessage.process(server, XMLConnectedClient.this);
                 }
             } catch (IOException e) {
                 logger.error("Can't read message :" + e.getMessage() + " I'm " + getSessionId());
@@ -97,8 +97,8 @@ public class XMLConnectedClient extends ConnectedClient {
             try (DataOutputStream outputStream = new DataOutputStream(socket.getOutputStream())) {
                 while (!Thread.interrupted()) {
                     Message message = messages.take();
-                    message.setConnectedClient(XMLConnectedClient.this);
-
+                    //message.setConnectedClient(XMLConnectedClient.this);
+                    message.setUsername(XMLConnectedClient.this.getUsername());
                     String msg = messageToXML.parseMessage((ServerMessage) message);
                     outputStream.writeInt(msg.length());
                     outputStream.write(msg.getBytes(StandardCharsets.UTF_8));

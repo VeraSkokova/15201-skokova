@@ -10,7 +10,6 @@ import java.io.Serializable;
 public abstract class ChatMessage extends Message {
     private int type;
     private String message;
-    protected ConnectedClient connectedClient;
     protected int sessionId;
 
     public ChatMessage() {}
@@ -32,15 +31,7 @@ public abstract class ChatMessage extends Message {
         return message;
     }
 
-    public void process(Server server) {}
-
-    public ConnectedClient getConnectedClient() {
-        return connectedClient;
-    }
-
-    public void setConnectedClient(ConnectedClient connectedClient) {
-        this.connectedClient = connectedClient;
-    }
+    public void process(Server server, ConnectedClient connectedClient) {}
 
     public int getSessionId() {
         return sessionId;

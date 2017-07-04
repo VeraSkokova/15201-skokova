@@ -1,6 +1,7 @@
 package ru.nsu.ccfit.skokova.chat.message;
 
 import ru.nsu.ccfit.skokova.chat.Client;
+import ru.nsu.ccfit.skokova.chat.ConnectedClient;
 import ru.nsu.ccfit.skokova.chat.Server;
 
 
@@ -15,7 +16,7 @@ public class LoginMessage extends ChatMessage {
         this.username = username;
     }
 
-    public void process(Server server) {
+    public void process(Server server, ConnectedClient connectedClient) {
         if (server.getUsernames().contains(this.username)) {
             server.sendMessage(new LoginError("This username is busy, try another"), connectedClient);
             connectedClient.interrupt();

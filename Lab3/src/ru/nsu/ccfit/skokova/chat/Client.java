@@ -113,4 +113,8 @@ public abstract class Client  {
     public void setLoggedIn(boolean loggedIn) {
         isLoggedIn = loggedIn;
     }
+
+    public int getPort() {
+        return port;
+    }
 }

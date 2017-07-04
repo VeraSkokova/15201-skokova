@@ -16,7 +16,7 @@ public class UserListMessage extends ChatMessage implements Serializable {
         super(sessionID);
     }
 
-    public void process(Server server) {
+    public void process(Server server, ConnectedClient connectedClient) {
             if (this.getSessionId() != connectedClient.getSessionId()) {
                 server.sendMessage(new UserListError("Authentication error"), connectedClient);
             } else {

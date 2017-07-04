@@ -13,7 +13,7 @@ public class LogoutMessage extends ChatMessage implements Serializable {
         super(sessionId);
     }
 
-    public void process(Server server) {
+    public void process(Server server, ConnectedClient connectedClient) {
         if (this.getSessionId() != connectedClient.getSessionId()) {
             server.sendMessage(new LogoutError("Authentication error"), connectedClient);
         } else {

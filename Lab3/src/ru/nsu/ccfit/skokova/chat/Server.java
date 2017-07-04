@@ -85,6 +85,18 @@ public class Server {
     }
 
     public synchronized void broadcast(Message message) {
+        /*for (ConnectedClient connectedClient : connectedClients) {
+            if ((message.getConnectedClient() == null) || (!message.getConnectedClient().equals(connectedClient))) {
+                if ((connectedClient.isValid())) {
+                    sendMessage(message, connectedClient);
+                    if (message.getConnectedClient() != null) {
+                        logger.debug(connectedClient.getUsername() + " " + message + " " + message.getMessage());
+                    } else {
+                        logger.debug("null connectedclient");
+                    }
+                }
+            }
+        }*/
         for (ConnectedClient connectedClient : connectedClients) {
             if (connectedClient.isValid()) {
                 sendMessage(message, connectedClient);
@@ -146,7 +158,7 @@ public class Server {
 
     public static void main(String[] args) {
         try(BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(System.in))) {
-        ConfigParser configParser = new ConfigParser("./src/MyConfig.txt");
+        ConfigParser configParser = new ConfigParser("/home/veraskokova/IdeaProjects/Chat/src/MyConfig.txt");
         /*int portNumber = 4500;
         int anotherPortNumber = 1700;*/
         Server server = new Server(configParser);

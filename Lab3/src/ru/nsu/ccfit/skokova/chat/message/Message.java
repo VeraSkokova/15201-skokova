@@ -10,19 +10,27 @@ import java.io.Serializable;
 public abstract class Message implements Serializable {
     protected static final Logger logger = LogManager.getLogger(ChatMessage.class);
 
-    protected ConnectedClient connectedClient;
+    protected String username;
 
     public Message() {}
 
     public Message(ConnectedClient connectedClient) {
-        this.connectedClient = connectedClient;
+        this.username = connectedClient.getUsername();
     }
 
-    public void process(Server server) {}
-
-    public void setConnectedClient(ConnectedClient connectedClient) {
-        this.connectedClient = connectedClient;
+    public Message(String username) {
+        this.username = username;
     }
+
+    public void process(Server server, ConnectedClient connectedClient) {}
 
     public abstract String getMessage();
+
+    public String getUsername() {
+        return username;
+    }
+
+    public void setUsername(String username) {
+        this.username = username;
+    }
 }
