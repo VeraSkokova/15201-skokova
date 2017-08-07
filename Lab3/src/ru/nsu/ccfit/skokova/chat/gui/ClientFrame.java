@@ -5,7 +5,6 @@ import org.apache.logging.log4j.Logger;
 import ru.nsu.ccfit.skokova.chat.Client;
 import ru.nsu.ccfit.skokova.chat.Server;
 import ru.nsu.ccfit.skokova.chat.message.Message;
-import ru.nsu.ccfit.skokova.chat.message.TextMessageFromServer;
 
 import javax.swing.*;
 import java.awt.*;
@@ -13,10 +12,8 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
 public class ClientFrame extends JFrame {
-    private Client client;
-
     private static final Logger logger = LogManager.getLogger(ClientFrame.class);
-
+    private Client client;
     private JTextField serverField;
     private JTextField portField;
     private JTextField usernameField;
@@ -46,47 +43,35 @@ public class ClientFrame extends JFrame {
     }
 
     private void setButtons() {
-        this.loginButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent actionEvent) {
-                if (!client.isLoggedIn()) {
-                    client.start();
-                } else {
-                    logger.warn("Bad request");
-                }
+        this.loginButton.addActionListener(actionEvent -> {
+            if (!client.isLoggedIn()) {
+                client.start();
+            } else {
+                logger.warn("Bad request");
             }
         });
 
-        this.logoutButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent actionEvent) {
-                if (client.isLoggedIn()) {
-                    client.sendLogoutMessage();
-                } else {
-                    logger.warn("Bad request");
-                }
+        this.logoutButton.addActionListener(actionEvent -> {
+            if (client.isLoggedIn()) {
+                client.sendLogoutMessage();
+            } else {
+                logger.warn("Bad request");
             }
         });
 
-        this.usersButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent actionEvent) {
-                if (client.isLoggedIn()) {
-                    client.sendUserListMessage();
-                } else {
-                    logger.warn("Bad request");
-                }
+        this.usersButton.addActionListener(actionEvent -> {
+            if (client.isLoggedIn()) {
+                client.sendUserListMessage();
+            } else {
+                logger.warn("Bad request");
             }
         });
     }
 
     private void setMessageField() {
-        this.messageField.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent actionEvent) {
-                client.sendTextMessage(messageField.getText());
-                messageField.setText("");
-            }
+        this.messageField.addActionListener(actionEvent -> {
+            client.sendTextMessage(messageField.getText());
+            messageField.setText("");
         });
     }
 
@@ -161,6 +146,15 @@ public class ClientFrame extends JFrame {
         this.add(southPanel, BorderLayout.SOUTH);
     }
 
+    public void dispose() {
+        if (client.isLoggedIn()) {
+            client.sendLogoutMessage();
+            client.disconnect();
+            client.interrupt();
+        }
+        System.exit(0);
+    }
+
     class PortListener implements ActionListener {
         @Override
         public void actionPerformed(ActionEvent actionEvent) {
@@ -230,15 +224,6 @@ public class ClientFrame extends JFrame {
                 messageArea.setCaretPosition(messageArea.getText().length() - 1);
             }
         }
-    }
-
-    public void dispose() {
-        if (client.isLoggedIn()) {
-            client.sendLogoutMessage();
-            client.disconnect();
-            client.interrupt();
-        }
-        System.exit(0);
     }
 
 }

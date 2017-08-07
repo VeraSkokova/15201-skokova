@@ -7,7 +7,7 @@ import java.io.DataInputStream;
 import java.io.IOException;
 
 public class ByteReader {
-    private static final Logger logger = LogManager.getLogger(ByteReader.class);
+    private static final Logger logger = LogManager.getLogger(XMLClient.class);
 
     private DataInputStream inputStream;
 
@@ -18,9 +18,10 @@ public class ByteReader {
     public byte[] readMessage() throws IOException {
         byte[] message = null;
         int length = inputStream.readInt();
-        logger.debug("length: " + length);
+        logger.debug("XMLClient, message length is " + Integer.toString(length));
+
         if (length < 0) {
-            logger.debug("Can't read");
+            logger.warn("Can't read");
         } else {
             int read = 0;
             message = new byte[length];

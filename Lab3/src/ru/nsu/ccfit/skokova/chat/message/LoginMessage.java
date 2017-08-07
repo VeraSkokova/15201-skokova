@@ -26,7 +26,9 @@ public class LoginMessage extends ChatMessage {
             connectedClient.setUsername(this.username);
             connectedClient.setSessionId(server.setUserSessionId());
             server.addClient(connectedClient);
-            server.broadcast(new NewClientMessage(connectedClient.getUsername() + " logged in"));
+            NewClientMessage newClientMessage = new NewClientMessage(connectedClient.getUsername() + " logged in");
+            newClientMessage.setUsername(this.username);
+            server.broadcast(newClientMessage);
             server.getUsernames().add(this.username);
             server.sendMessage(new LoginSuccess(connectedClient.getSessionId()), connectedClient);
         }

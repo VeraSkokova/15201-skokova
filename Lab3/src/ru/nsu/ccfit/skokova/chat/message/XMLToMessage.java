@@ -7,7 +7,6 @@ import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import ru.nsu.ccfit.skokova.chat.ClientPair;
 import ru.nsu.ccfit.skokova.chat.MessagePair;
-import ru.nsu.ccfit.skokova.chat.Server;
 
 public class XMLToMessage {
     private static final Logger logger = LogManager.getLogger(XMLToMessage.class);
@@ -45,8 +44,7 @@ public class XMLToMessage {
 
     private int parseSimpleCommand(Element element) {
         String sessionID = element.getElementsByTagName("session").item(0).getTextContent();
-        int result = Integer.parseInt(sessionID);
-        return result;
+        return Integer.parseInt(sessionID);
     }
 
     private ClientPair parseLogincommand(Element element) {

@@ -17,27 +17,25 @@ import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.atomic.AtomicInteger;
 
 public class Server {
+    public static final int MIN_PORT_NUMBER = 0;
+    public static final int MAX_PORT_NUMBER = 65535;
+    private static final int MESSAGES_COUNT = 10000;
+    private static final AtomicInteger SESSION_ID = new AtomicInteger(1);
+    private static final Logger logger = LogManager.getLogger(Server.class);
+
     static {
         System.getProperties().setProperty("log4j.configurationFile", "src/log4j2.xml");
     }
 
-    private static final int MESSAGES_COUNT = 10000;
-    private static final AtomicInteger SESSION_ID = new AtomicInteger(1);
     private ArrayList<ConnectedClient> connectedClients = new ArrayList<>();
     private BlockingQueue<Message> messageHistory = new ArrayBlockingQueue<>(MESSAGES_COUNT);
     private BlockingQueue<ChatMessage> requests = new ArrayBlockingQueue<>(MESSAGES_COUNT);
-    private BlockingQueue<String> usernames = new ArrayBlockingQueue<String>(MESSAGES_COUNT);
+    private BlockingQueue<String> usernames = new ArrayBlockingQueue<>(MESSAGES_COUNT);
     private int firstPort;
     private int secondPort;
     private boolean isWorking;
-
-    public static final int MIN_PORT_NUMBER = 0;
-    public static final int MAX_PORT_NUMBER = 65535;
-
     private Thread objectThread;
     private Thread xmlThread;
-
-    private static final Logger logger = LogManager.getLogger(Server.class);
 
     public Server(int firstPort, int secondPort) {
         this.firstPort = firstPort;
@@ -47,6 +45,20 @@ public class Server {
     public Server(ConfigParser configParser) {
         this.firstPort = ConfigParser.map.get("ObjectPort");
         this.secondPort = ConfigParser.map.get("XMLPort");
+    }
+
+    public static void main(String[] args) {
+        try (BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(System.in))) {
+            ConfigParser configParser = new ConfigParser("/home/veraskokova/IdeaProjects/Chat/src/MyConfig.txt");
+        /*int portNumber = 4500;
+        int anotherPortNumber = 1700;*/
+            Server server = new Server(configParser);
+            server.start();
+            while (bufferedReader.readLine().compareTo("stop") != 0) ;
+            server.stop();
+        } catch (IOException | BadParseException e) {
+            logger.warn(e.getMessage());
+        }
     }
 
     public ArrayList<ConnectedClient> getConnectedClients() {
@@ -85,20 +97,8 @@ public class Server {
     }
 
     public synchronized void broadcast(Message message) {
-        /*for (ConnectedClient connectedClient : connectedClients) {
-            if ((message.getConnectedClient() == null) || (!message.getConnectedClient().equals(connectedClient))) {
-                if ((connectedClient.isValid())) {
-                    sendMessage(message, connectedClient);
-                    if (message.getConnectedClient() != null) {
-                        logger.debug(connectedClient.getUsername() + " " + message + " " + message.getMessage());
-                    } else {
-                        logger.debug("null connectedclient");
-                    }
-                }
-            }
-        }*/
         for (ConnectedClient connectedClient : connectedClients) {
-            if (connectedClient.isValid()) {
+            if ((connectedClient.isValid()) && (!connectedClient.getUsername().equals(message.getUsername()))) {
                 sendMessage(message, connectedClient);
             }
         }
@@ -153,20 +153,6 @@ public class Server {
         broadcast(new TextMessageFromServer("New user logged in", "Server"));
         for (Message message : messageHistory) {
             sendMessage(message, connectedClient);
-        }
-    }
-
-    public static void main(String[] args) {
-        try(BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(System.in))) {
-        ConfigParser configParser = new ConfigParser("/home/veraskokova/IdeaProjects/Chat/src/MyConfig.txt");
-        /*int portNumber = 4500;
-        int anotherPortNumber = 1700;*/
-        Server server = new Server(configParser);
-        server.start();
-        while (bufferedReader.readLine().compareTo("stop") != 0);
-        server.stop();
-        } catch (IOException | BadParseException e) {
-            logger.warn(e.getMessage());
         }
     }
 

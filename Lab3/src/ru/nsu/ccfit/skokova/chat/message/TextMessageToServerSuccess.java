@@ -8,5 +8,14 @@ public class TextMessageToServerSuccess extends ServerMessage {
     }
 
     @Override
-    public void interpret(Client client) {}
+    public void interpret(Client client) {
+        //If client gets this message, it needs to take message from its queue and show it
+        try {
+            Object message = client.getSentMessages().take();
+            client.notifyValueChanged(message);
+        } catch (InterruptedException e) {
+            logger.warn(e.getMessage());
+        }
+
+    }
 }

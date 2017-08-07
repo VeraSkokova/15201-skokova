@@ -1,5 +1,7 @@
 package ru.nsu.ccfit.skokova.chat;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.w3c.dom.Document;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
@@ -17,6 +19,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.Date;
 
 public class XMLConnectedClient extends ConnectedClient {
+    private static final Logger logger = LogManager.getLogger(Server.class);
     private DocumentBuilder documentBuilder;
 
     public XMLConnectedClient(Socket socket, Server server, String username) {
@@ -97,10 +100,9 @@ public class XMLConnectedClient extends ConnectedClient {
             try (DataOutputStream outputStream = new DataOutputStream(socket.getOutputStream())) {
                 while (!Thread.interrupted()) {
                     Message message = messages.take();
-                    //message.setConnectedClient(XMLConnectedClient.this);
                     message.setUsername(XMLConnectedClient.this.getUsername());
                     String msg = messageToXML.parseMessage((ServerMessage) message);
-                    outputStream.writeInt(msg.length());
+                    outputStream.writeInt(msg.getBytes(StandardCharsets.UTF_8).length);
                     outputStream.write(msg.getBytes(StandardCharsets.UTF_8));
                     outputStream.flush();
                 }

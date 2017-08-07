@@ -1,7 +1,10 @@
 package ru.nsu.ccfit.skokova.chat;
 
 import ru.nsu.ccfit.skokova.chat.gui.ClientFrame;
-import ru.nsu.ccfit.skokova.chat.message.*;
+import ru.nsu.ccfit.skokova.chat.message.LoginError;
+import ru.nsu.ccfit.skokova.chat.message.ServerMessage;
+import ru.nsu.ccfit.skokova.chat.message.XMLMessageCreator;
+import ru.nsu.ccfit.skokova.chat.message.XMLMessageInterpretator;
 
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
@@ -22,6 +25,18 @@ public class XMLClient extends Client {
 
     XMLClient(String server, int port, String username) {
         super(server, port, username);
+    }
+
+    public static void main(String[] args) {
+        int portNumber = 1700;
+        String serverAddress = "localhost";
+        String userName = "Anonymous";
+
+        Client client = new XMLClient(serverAddress, portNumber, userName);
+        ClientFrame clientFrame = new ClientFrame(client);
+        client.addHandler(clientFrame.new MessageUpdater());
+
+        //client.start();
     }
 
     public void start() {
@@ -90,12 +105,12 @@ public class XMLClient extends Client {
         this.username = username;
     }
 
-    public void setPort(int port) {
-        this.port = port;
-    }
-
     public int getPort() {
         return this.port;
+    }
+
+    public void setPort(int port) {
+        this.port = port;
     }
 
     public void disconnect() {
@@ -114,18 +129,6 @@ public class XMLClient extends Client {
         }
     }
 
-    public static void main(String[] args) {
-        int portNumber = 1700;
-        String serverAddress = "localhost";
-        String userName = "Anonymous";
-
-        Client client = new XMLClient(serverAddress, portNumber, userName);
-        ClientFrame clientFrame = new ClientFrame(client);
-        client.addHandler(clientFrame.new MessageUpdater());
-
-        //client.start();
-    }
-
     class ReadFromServer implements Runnable {
         XMLMessageInterpretator xmlMessageInterpretator = new XMLMessageInterpretator(XMLClient.this);
         @Override
@@ -139,6 +142,7 @@ public class XMLClient extends Client {
                     } else {
                         String msg = new String(messageBytes);
                         ServerMessage serverMessage = xmlMessageInterpretator.interpret(msg);
+                        logger.debug("XMLClient read " + serverMessage.getMessage());
                         serverMessage.interpret(XMLClient.this);
                         notifyValueChanged(serverMessage);
                     }
@@ -158,6 +162,7 @@ public class XMLClient extends Client {
                 while (!Thread.interrupted()) {
                     String message = xmlMessages.take();
                     sendMessage(message);
+                    sentMessages.add(message);
                 }
             } catch (InterruptedException e) {
                 Thread.currentThread().interrupt();

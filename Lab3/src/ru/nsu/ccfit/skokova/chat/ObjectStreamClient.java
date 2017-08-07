@@ -6,7 +6,6 @@ import ru.nsu.ccfit.skokova.chat.message.*;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
-import java.io.Serializable;
 import java.net.Socket;
 
 public class ObjectStreamClient extends Client {
@@ -21,6 +20,18 @@ public class ObjectStreamClient extends Client {
 
     ObjectStreamClient(String server, int port, String username) {
         super(server, port, username);
+    }
+
+    public static void main(String[] args) {
+        int portNumber = 4500;
+        String serverAddress = "localhost";
+        String userName = "Anonymous";
+
+        Client client = new ObjectStreamClient(serverAddress, portNumber, userName);
+        ClientFrame clientFrame = new ClientFrame(client);
+        client.addHandler(clientFrame.new MessageUpdater());
+
+        //client.start();
     }
 
     public void start() {
@@ -66,23 +77,19 @@ public class ObjectStreamClient extends Client {
         TextMessageToServer msg = new TextMessageToServer(message);
         msg.setSessionId(this.getSessionId());
         messages.add(msg);
-        //sendMessage(new TextMessageFromServer(message));
     }
 
     public void sendLogoutMessage() {
         LogoutMessage msg = new LogoutMessage();
         msg.setSessionId(this.sessionId);
         messages.add(msg);
-        //sendMessage(new LogoutMessage());
     }
 
     public void sendUserListMessage() {
         UserListMessage msg = new UserListMessage();
         msg.setSessionId(this.sessionId);
         messages.add(msg);
-        //sendMessage(new UserListMessage());
     }
-
 
     private void sendMessage(Message msg) {
         try {
@@ -104,18 +111,6 @@ public class ObjectStreamClient extends Client {
 
     public void setPort(int port) {
         this.port = port;
-    }
-
-    public static void main(String[] args) {
-        int portNumber = 4500;
-        String serverAddress = "localhost";
-        String userName = "Anonymous";
-
-        Client client = new ObjectStreamClient(serverAddress, portNumber, userName);
-        ClientFrame clientFrame = new ClientFrame(client);
-        client.addHandler(clientFrame.new MessageUpdater());
-
-        //client.start();
     }
 
     class ReadFromServer implements Runnable {
@@ -143,6 +138,7 @@ public class ObjectStreamClient extends Client {
                 while (true) {
                     Message message = messages.take();
                     sendMessage(message);
+                    sentMessages.add(message);
                 }
             } catch (InterruptedException e) {
                 Thread.currentThread().interrupt();

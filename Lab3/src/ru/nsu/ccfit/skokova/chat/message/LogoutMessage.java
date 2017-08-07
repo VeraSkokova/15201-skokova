@@ -3,9 +3,7 @@ package ru.nsu.ccfit.skokova.chat.message;
 import ru.nsu.ccfit.skokova.chat.ConnectedClient;
 import ru.nsu.ccfit.skokova.chat.Server;
 
-import java.io.Serializable;
-
-public class LogoutMessage extends ChatMessage implements Serializable {
+public class LogoutMessage extends ChatMessage {
 
     public LogoutMessage() {}
 
