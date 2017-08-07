@@ -1,5 +1,7 @@
 package ru.nsu.ccfit.skokova.chat;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import ru.nsu.ccfit.skokova.chat.gui.ClientFrame;
 import ru.nsu.ccfit.skokova.chat.message.*;
 
@@ -9,6 +11,8 @@ import java.io.ObjectOutputStream;
 import java.net.Socket;
 
 public class ObjectStreamClient extends Client {
+    private static final Logger logger = LogManager.getLogger(ObjectStreamClient.class);
+
     static {
         System.getProperties().setProperty("log4j.configurationFile", "src/log4j2.xml");
     }
@@ -93,6 +97,8 @@ public class ObjectStreamClient extends Client {
 
     private void sendMessage(Message msg) {
         try {
+            msg.setUsername(this.username);
+            logger.info(username + " send " + msg.getMessage());
             outputStream.writeObject(msg);
         } catch(IOException e) {
             display("Exception writing to server: " + e.getMessage());
@@ -119,6 +125,7 @@ public class ObjectStreamClient extends Client {
             while(true) {
                 try {
                     ServerMessage message = (ServerMessage) inputStream.readObject();
+                    logger.debug("ObjectStreamClient read " + message.getMessage());
                     message.interpret(ObjectStreamClient.this);
                     notifyValueChanged(message);
                 } catch (IOException e) {

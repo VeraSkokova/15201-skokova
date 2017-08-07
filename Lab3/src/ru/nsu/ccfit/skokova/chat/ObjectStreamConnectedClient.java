@@ -1,7 +1,7 @@
 package ru.nsu.ccfit.skokova.chat;
 
-import ru.nsu.ccfit.skokova.chat.message.ChatMessage;
-import ru.nsu.ccfit.skokova.chat.message.LoginMessage;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import ru.nsu.ccfit.skokova.chat.message.Message;
 
 import java.io.IOException;
@@ -10,7 +10,9 @@ import java.io.ObjectOutputStream;
 import java.net.Socket;
 import java.util.Date;
 
-public class ObjectStreamConnectedClient extends ConnectedClient{
+public class ObjectStreamConnectedClient extends ConnectedClient {
+    private static final Logger logger = LogManager.getLogger(Server.class);
+
     public ObjectStreamConnectedClient(Socket socket, Server server, String username) {
         super(socket, server);
         this.username = username;
@@ -67,7 +69,7 @@ public class ObjectStreamConnectedClient extends ConnectedClient{
                         break;
                     }
                     Message message = (Message) inputStream.readObject();
-                    //message.setConnectedClient(ObjectStreamConnectedClient.this);
+                    logger.debug("Server get " + message.getMessage() + " from " + getUsername());
                     message.setUsername(ObjectStreamConnectedClient.this.getUsername());
                     message.process(server, ObjectStreamConnectedClient.this);
                 }

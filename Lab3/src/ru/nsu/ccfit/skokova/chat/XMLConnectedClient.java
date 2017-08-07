@@ -76,7 +76,7 @@ public class XMLConnectedClient extends ConnectedClient {
                         break;
                     }
                     byte[] message = byteReader.readMessage();
-                    String msg = new String(message);
+                    String msg = new String(message, StandardCharsets.UTF_8);
                     Document document = documentBuilder.parse(new InputSource(new ByteArrayInputStream(msg.getBytes(StandardCharsets.UTF_8))));
                     ChatMessage chatMessage = xmlToMessage.parseMessage(document);
                     chatMessage.setUsername(XMLConnectedClient.this.getUsername());
@@ -101,7 +101,9 @@ public class XMLConnectedClient extends ConnectedClient {
                 while (!Thread.interrupted()) {
                     Message message = messages.take();
                     message.setUsername(XMLConnectedClient.this.getUsername());
+                    logger.debug("Writing " + message.getMessage() + " to " + getUsername());
                     String msg = messageToXML.parseMessage((ServerMessage) message);
+                    logger.debug("After parsing " + msg); //TODO : remove
                     outputStream.writeInt(msg.getBytes(StandardCharsets.UTF_8).length);
                     outputStream.write(msg.getBytes(StandardCharsets.UTF_8));
                     outputStream.flush();

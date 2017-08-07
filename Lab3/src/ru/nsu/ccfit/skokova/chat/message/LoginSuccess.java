@@ -14,6 +14,11 @@ public class LoginSuccess extends ServerMessage {
         client.setLoggedIn(true);
         client.setSessionId(this.sessionId);
         setMessage("Welcome!");
+        try {
+            Object loginMessage = client.getSentMessages().take();
+        } catch (InterruptedException e) {
+            logger.debug(e.getMessage());
+        }
     }
 
     public int getSessionId() {

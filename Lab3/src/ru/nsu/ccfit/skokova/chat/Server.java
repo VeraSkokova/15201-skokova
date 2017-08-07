@@ -21,6 +21,7 @@ public class Server {
     public static final int MAX_PORT_NUMBER = 65535;
     private static final int MESSAGES_COUNT = 10000;
     private static final AtomicInteger SESSION_ID = new AtomicInteger(1);
+
     private static final Logger logger = LogManager.getLogger(Server.class);
 
     static {
@@ -99,6 +100,7 @@ public class Server {
     public synchronized void broadcast(Message message) {
         for (ConnectedClient connectedClient : connectedClients) {
             if ((connectedClient.isValid()) && (!connectedClient.getUsername().equals(message.getUsername()))) {
+                logger.debug("Sending " + message.getMessage() + " from " + message.getUsername() + " to" + connectedClient.getUsername());
                 sendMessage(message, connectedClient);
             }
         }

@@ -12,7 +12,9 @@ public class TextMessageToServerSuccess extends ServerMessage {
         //If client gets this message, it needs to take message from its queue and show it
         try {
             Object message = client.getSentMessages().take();
-            client.notifyValueChanged(message);
+            if (message != null) {
+                client.notifyValueChanged(message);
+            }
         } catch (InterruptedException e) {
             logger.warn(e.getMessage());
         }

@@ -2,7 +2,6 @@ package ru.nsu.ccfit.skokova.chat.message;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.w3c.dom.Element;
 
 public class MessageToXML {
     private static final Logger logger = LogManager.getLogger(MessageToXML.class);
@@ -34,11 +33,11 @@ public class MessageToXML {
                 result = xmlMessageCreator.createNewClientMessage(serverMessage.getMessage());
                 break;
             case "ClientLoggedOutMessage":
-                result = xmlMessageCreator.createClientLoggedOutMessage(serverMessage.getMessage());
+                result = xmlMessageCreator.createClientLoggedOutMessage(serverMessage.getUsername());
                 break;
             case "TextMessageFromServer":
                 TextMessageFromServer textMessageFromServer = (TextMessageFromServer) serverMessage;
-                result = xmlMessageCreator.createServerMessage(textMessageFromServer.getSentMessage(), textMessageFromServer.getSender());
+                result = xmlMessageCreator.createServerMessage(textMessageFromServer.getSentMessage(), textMessageFromServer.getUsername()); //TODO : check
                 break;
         }
         return result;

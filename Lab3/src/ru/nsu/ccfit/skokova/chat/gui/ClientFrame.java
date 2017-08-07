@@ -12,7 +12,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
 public class ClientFrame extends JFrame {
-    private static final Logger logger = LogManager.getLogger(ClientFrame.class);
+    private static final Logger logger = LogManager.getLogger(Server.class);
     private Client client;
     private JTextField serverField;
     private JTextField portField;
