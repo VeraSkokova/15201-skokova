@@ -4,7 +4,6 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import ru.nsu.ccfit.skokova.chat.message.ChatMessage;
 import ru.nsu.ccfit.skokova.chat.message.Message;
-import ru.nsu.ccfit.skokova.chat.message.TextMessageFromServer;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -106,10 +105,6 @@ public class Server {
         }
     }
 
-    public void sendMessage(ChatMessage message, ConnectedClient connectedClient) {
-        connectedClient.getMessages().add(message);
-    }
-
     public void sendMessage(Message message, ConnectedClient connectedClient) {
         connectedClient.getMessages().add(message);
     }
@@ -138,24 +133,30 @@ public class Server {
         this.secondPort = secondPort;
     }
 
+    public void sendMessageHistory(ConnectedClient connectedClient) {
+        for (Message message : messageHistory) {
+            sendMessage(message, connectedClient);
+        }
+    }
+
     public void connectObjectStreamClient(Socket socket) {
         ObjectStreamConnectedClient connectedClient = new ObjectStreamConnectedClient(socket, this);
         connectedClient.run();
         connectedClient.login(this);
-        broadcast(new TextMessageFromServer("New user logged in", "Server"));
-        for (Message message : messageHistory) {
+        //broadcast(new TextMessageFromServer("New user logged in", "Server"));
+        /*for (Message message : messageHistory) {
             sendMessage(message, connectedClient);
-        }
+        }*/
     }
 
     public void connectXMLClient(Socket socket) {
         XMLConnectedClient connectedClient = new XMLConnectedClient(socket, this);
         connectedClient.run();
         connectedClient.login(this);
-        broadcast(new TextMessageFromServer("New user logged in", "Server"));
-        for (Message message : messageHistory) {
+        //broadcast(new TextMessageFromServer("New user logged in", "Server"));
+        /*for (Message message : messageHistory) {
             sendMessage(message, connectedClient);
-        }
+        }*/
     }
 
     class ObjectStreamAcceptor implements Runnable {

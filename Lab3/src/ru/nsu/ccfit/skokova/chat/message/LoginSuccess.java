@@ -24,4 +24,9 @@ public class LoginSuccess extends ServerMessage {
     public int getSessionId() {
         return sessionId;
     }
+
+    @Override
+    public String toString() {
+        return "Welcome!";
+    }
 }

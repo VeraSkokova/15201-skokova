@@ -3,9 +3,7 @@ package ru.nsu.ccfit.skokova.chat.message;
 import ru.nsu.ccfit.skokova.chat.Client;
 import ru.nsu.ccfit.skokova.chat.ConnectedClient;
 
-import java.io.Serializable;
-
-public abstract class ServerMessage extends Message implements Serializable {
+public abstract class ServerMessage extends Message {
     protected String message;
 
     public ServerMessage() {}

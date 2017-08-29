@@ -5,13 +5,14 @@ import ru.nsu.ccfit.skokova.chat.Client;
 public class ClientLoggedOutMessage extends ServerMessage {
     private String username;
 
-    public ClientLoggedOutMessage(String message) {
-        super(message  + " logged out");
-        this.username = message;
+    public ClientLoggedOutMessage(String username) {
+        this.username = username;
     }
 
     @Override
-    public void interpret(Client client) {}
+    public void interpret(Client client) {
+        client.notifyValueChanged(this);
+    }
 
     @Override
     public String getMessage() {
@@ -20,5 +21,10 @@ public class ClientLoggedOutMessage extends ServerMessage {
 
     public String getUsername() {
         return username;
+    }
+
+    @Override
+    public String toString() {
+        return username + " logged out";
     }
 }

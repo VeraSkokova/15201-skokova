@@ -8,10 +8,17 @@ public class LogoutError extends ServerMessage {
     }
 
     @Override
-    public void interpret(Client client) {}
+    public void interpret(Client client) {
+        client.notifyValueChanged(this);
+    }
 
     @Override
     public String getMessage() {
         return super.getMessage();
+    }
+
+    @Override
+    public String toString() {
+        return message;
     }
 }

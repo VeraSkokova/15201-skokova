@@ -4,7 +4,6 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import ru.nsu.ccfit.skokova.chat.Client;
 import ru.nsu.ccfit.skokova.chat.Server;
-import ru.nsu.ccfit.skokova.chat.message.Message;
 
 import javax.swing.*;
 import java.awt.*;
@@ -219,9 +218,11 @@ public class ClientFrame extends JFrame {
         @Override
         public void handle(Object value) {
             if (client.isLoggedIn()) {
-                Message msg = (Message) value;
-                messageArea.append(msg.getMessage() + "\n");
-                messageArea.setCaretPosition(messageArea.getText().length() - 1);
+                if (value != null) {
+                    logger.debug("client is handling " + value); //TODO : remove
+                    messageArea.append(value.toString() + "\n");
+                    messageArea.setCaretPosition(messageArea.getText().length() - 1);
+                }
             }
         }
     }

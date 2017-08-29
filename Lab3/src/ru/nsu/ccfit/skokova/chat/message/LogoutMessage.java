@@ -27,4 +27,9 @@ public class LogoutMessage extends ChatMessage {
             server.saveMessage(textMessageFromServer);
         }
     }
+
+    @Override
+    public String toString() {
+        return username + " logged out";
+    }
 }

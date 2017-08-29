@@ -1,15 +1,10 @@
 package ru.nsu.ccfit.skokova.chat.message;
 
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import ru.nsu.ccfit.skokova.chat.ConnectedClient;
 import ru.nsu.ccfit.skokova.chat.Server;
 
-import java.io.Serializable;
-
 public abstract class ChatMessage extends Message {
-    private int type;
-    private String message;
+    protected String message;
     protected int sessionId;
 
     public ChatMessage() {}

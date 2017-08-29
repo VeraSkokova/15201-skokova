@@ -54,7 +54,7 @@ public class ObjectStreamConnectedClient extends ConnectedClient {
 
     public void login(Server server) {
         this.setSessionId(server.setUserSessionId());
-    }
+    } //TODO : how???
 
     public Socket getSocket() {
         return socket;
@@ -70,8 +70,10 @@ public class ObjectStreamConnectedClient extends ConnectedClient {
                     }
                     Message message = (Message) inputStream.readObject();
                     logger.debug("Server get " + message.getMessage() + " from " + getUsername());
+                    logger.debug("Message type is " + message.getClass());
                     message.setUsername(ObjectStreamConnectedClient.this.getUsername());
                     message.process(server, ObjectStreamConnectedClient.this);
+                    logger.debug("Processed message");
                 }
                 if (Thread.currentThread().isInterrupted()) {
                     System.out.println("Reader was interrupted");
@@ -81,7 +83,7 @@ public class ObjectStreamConnectedClient extends ConnectedClient {
             } catch (ClassNotFoundException | ClassCastException e) {
                 logger.error("Unknown type of message. " + e.getMessage());
             } catch (NullPointerException e) {
-                logger.error("Invalid type of message");
+                logger.error("Invalid type of message: " + e.getCause());
             }
         }
     }

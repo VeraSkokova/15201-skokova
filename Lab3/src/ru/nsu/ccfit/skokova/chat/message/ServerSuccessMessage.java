@@ -14,4 +14,9 @@ public class ServerSuccessMessage extends ServerMessage {
     public String getMessage() {
         return super.getMessage();
     }
+
+    @Override
+    public String toString() {
+        return "";
+    }
 }

@@ -20,7 +20,7 @@ public class UserListMessage extends ChatMessage implements Serializable {
             if (this.getSessionId() != connectedClient.getSessionId()) {
                 server.sendMessage(new UserListError("Authentication error"), connectedClient);
             } else {
-                String message = "List of the users\n";
+                message = "List of the users\n";
                 for (int i = 0; i < server.getConnectedClients().size(); ++i) {
                     ConnectedClient ct = server.getConnectedClients().get(i);
                     message += Integer.toString(i + 1)  + "." + " " + ct.getUsername() + " " + ct.getType() + "\n";

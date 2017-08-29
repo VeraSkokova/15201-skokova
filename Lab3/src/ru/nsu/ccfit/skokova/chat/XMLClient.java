@@ -1,11 +1,12 @@
 package ru.nsu.ccfit.skokova.chat;
 
+import org.xml.sax.InputSource;
+import org.xml.sax.SAXException;
 import ru.nsu.ccfit.skokova.chat.gui.ClientFrame;
-import ru.nsu.ccfit.skokova.chat.message.LoginError;
-import ru.nsu.ccfit.skokova.chat.message.ServerMessage;
-import ru.nsu.ccfit.skokova.chat.message.XMLMessageCreator;
-import ru.nsu.ccfit.skokova.chat.message.XMLMessageInterpretator;
+import ru.nsu.ccfit.skokova.chat.message.*;
 
+import javax.xml.parsers.ParserConfigurationException;
+import java.io.ByteArrayInputStream;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
@@ -48,7 +49,7 @@ public class XMLClient extends Client {
             logger.error("Error in connection to server:" + ec.getMessage());
         }
 
-        xmlMessages.add(xmlMessageCreator.createLoginMessage(username, "XML"));
+        messages.add(xmlMessageCreator.createLoginMessage(username, "XML"));
 
         try {
             this.inputStream = new DataInputStream(socket.getInputStream());
@@ -73,17 +74,17 @@ public class XMLClient extends Client {
     }
 
     public void sendTextMessage(String message) {
-        xmlMessages.add(xmlMessageCreator.createClientMessage(message, Integer.toString(sessionId)));
+        messages.add(xmlMessageCreator.createClientMessage(message, Integer.toString(sessionId)));
         //sendMessage(xmlMessageCreator.createClientMessage(message, Integer.toString(sessionId))); //!!!!!!!!!!
     }
 
     public void sendLogoutMessage() {
-        xmlMessages.add(xmlMessageCreator.createLogoutMessage(Integer.toString(this.sessionId)));
+        messages.add(xmlMessageCreator.createLogoutMessage(Integer.toString(this.sessionId)));
         //sendMessage(xmlMessageCreator.createLogoutMessage(this.username));
     }
 
     public void sendUserListMessage() {
-        xmlMessages.add(xmlMessageCreator.createUserListRequestMessage(Integer.toString(sessionId)));
+        messages.add(xmlMessageCreator.createUserListRequestMessage(Integer.toString(sessionId)));
         //sendMessage(xmlMessageCreator.createUserListRequestMessage(Integer.toString(sessionId))); //!!!!!!!!!!!!
     }
 
@@ -130,21 +131,21 @@ public class XMLClient extends Client {
     }
 
     class ReadFromServer implements Runnable {
-        XMLMessageInterpretator xmlMessageInterpretator = new XMLMessageInterpretator(XMLClient.this);
+        XMLMessageInterpreter xmlMessageInterpreter = new XMLMessageInterpreter(XMLClient.this);
         @Override
         public void run() {
             try {
                 ByteReader byteReader = new ByteReader(inputStream);
-                while (!Thread.interrupted()) {
+                while (true) {
                     byte[] messageBytes = byteReader.readMessage();
                     if (messageBytes == null) {
                         logger.error("Message hasn't been read");
                     } else {
                         String msg = new String(messageBytes);
-                        ServerMessage serverMessage = xmlMessageInterpretator.interpret(msg);
+                        ServerMessage serverMessage = xmlMessageInterpreter.interpret(msg); //TODO : duplication
                         logger.debug("XMLClient read " + serverMessage.getMessage());
-                        serverMessage.interpret(XMLClient.this);
-                        notifyValueChanged(serverMessage);
+                        serverMessage.interpret(XMLClient.this); //TODO : login client before receiving history
+                        //notifyValueChanged(serverMessage);
                     }
                 }
             } catch (IOException e) {
@@ -159,13 +160,15 @@ public class XMLClient extends Client {
         @Override
         public void run() {
             try {
-                while (!Thread.interrupted()) {
-                    String message = xmlMessages.take();
+                while (true) {
+                    String message = (String) messages.take();
                     sendMessage(message);
-                    sentMessages.add(message);
+                    sentMessages.add(XMLToMessage.parseMessage(new InputSource(new ByteArrayInputStream(message.getBytes(StandardCharsets.UTF_8)))));
                 }
             } catch (InterruptedException e) {
                 Thread.currentThread().interrupt();
+            } catch (ParserConfigurationException | IOException | SAXException e) {
+                logger.error("Can't parse message");
             }
         }
     }

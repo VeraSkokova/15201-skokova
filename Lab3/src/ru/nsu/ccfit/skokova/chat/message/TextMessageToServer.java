@@ -7,7 +7,6 @@ import ru.nsu.ccfit.skokova.chat.Server;
 
 public class TextMessageToServer extends ChatMessage {
     private static final Logger logger = LogManager.getLogger(Server.class);
-    private String message;
 
     public TextMessageToServer(String message) {
         this.message = message;
@@ -26,7 +25,6 @@ public class TextMessageToServer extends ChatMessage {
             logger.debug("Processing " + message + " from " + connectedClient.getUsername());
             server.sendMessage(new TextMessageToServerSuccess(""), connectedClient);
             TextMessageFromServer textMessage = new TextMessageFromServer(message, connectedClient.getUsername());
-            logger.debug("Preparing to broadcast " + textMessage.getMessage() + " from " + textMessage.getUsername()); //TODO : remove
             server.broadcast(textMessage);
             server.saveMessage(textMessage);
         }

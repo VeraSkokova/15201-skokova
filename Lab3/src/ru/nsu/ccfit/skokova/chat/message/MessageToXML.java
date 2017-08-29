@@ -37,7 +37,7 @@ public class MessageToXML {
                 break;
             case "TextMessageFromServer":
                 TextMessageFromServer textMessageFromServer = (TextMessageFromServer) serverMessage;
-                result = xmlMessageCreator.createServerMessage(textMessageFromServer.getSentMessage(), textMessageFromServer.getUsername()); //TODO : check
+                result = xmlMessageCreator.createServerMessage(textMessageFromServer.getMessage(), textMessageFromServer.getUsername());
                 break;
         }
         return result;

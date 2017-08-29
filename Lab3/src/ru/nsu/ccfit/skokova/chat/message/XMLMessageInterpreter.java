@@ -9,6 +9,7 @@ import org.w3c.dom.NodeList;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 import ru.nsu.ccfit.skokova.chat.Client;
+import ru.nsu.ccfit.skokova.chat.XMLClient;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -17,12 +18,11 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 
-public class XMLMessageInterpretator {
+public class XMLMessageInterpreter {
+    private static final Logger logger = LogManager.getLogger(XMLClient.class);
     private Client client;
 
-    private static final Logger logger = LogManager.getLogger(XMLMessageInterpretator.class);
-
-    public XMLMessageInterpretator(Client client) {
+    public XMLMessageInterpreter(Client client) {
         this.client = client;
     }
 
@@ -107,8 +107,7 @@ public class XMLMessageInterpretator {
 
     private ClientLoggedOutMessage parseUserLogoutEvent(Element element) {
         String username = element.getElementsByTagName("name").item(0).getTextContent();
-        ClientLoggedOutMessage clientLoggedOutMessage = new ClientLoggedOutMessage(username);
-        return clientLoggedOutMessage;
+        return new ClientLoggedOutMessage(username);
     }
 
     private ServerErrorMessage parseServerErrorMessage(Element element) {
@@ -127,6 +126,13 @@ public class XMLMessageInterpretator {
     }
 
     public ServerSuccessMessage parseServerSuccessMessage(Element element) {
+        try {
+            Message temp = (Message) client.getSentMessages().take();
+            logger.debug("Got server success message to " + temp.getMessage());
+            client.notifyValueChanged(temp); //TODO : ???
+        } catch (InterruptedException e) {
+            logger.error(e.getMessage());
+        }
         return new ServerSuccessMessage("");
     }
 
@@ -151,7 +157,10 @@ public class XMLMessageInterpretator {
                 }
             }
         }
-        UserListSuccess userListSuccess = new UserListSuccess(userList);
-        return userListSuccess;
+        return new UserListSuccess(userList);
+    }
+
+    public LoginMessage parseLoginMessage(Element element) {
+        return new LoginMessage(client);
     }
 }

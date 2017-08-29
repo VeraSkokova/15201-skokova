@@ -2,7 +2,6 @@ package ru.nsu.ccfit.skokova.chat;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.w3c.dom.Document;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 import ru.nsu.ccfit.skokova.chat.message.*;
@@ -77,8 +76,8 @@ public class XMLConnectedClient extends ConnectedClient {
                     }
                     byte[] message = byteReader.readMessage();
                     String msg = new String(message, StandardCharsets.UTF_8);
-                    Document document = documentBuilder.parse(new InputSource(new ByteArrayInputStream(msg.getBytes(StandardCharsets.UTF_8))));
-                    ChatMessage chatMessage = xmlToMessage.parseMessage(document);
+                    //Document document = documentBuilder.parse(new InputSource(new ByteArrayInputStream(msg.getBytes(StandardCharsets.UTF_8))));
+                    ChatMessage chatMessage = xmlToMessage.parseMessage(new InputSource(new ByteArrayInputStream(msg.getBytes(StandardCharsets.UTF_8))));
                     chatMessage.setUsername(XMLConnectedClient.this.getUsername());
                     chatMessage.setSessionId(sessionId);
                     chatMessage.process(server, XMLConnectedClient.this);
@@ -100,10 +99,9 @@ public class XMLConnectedClient extends ConnectedClient {
             try (DataOutputStream outputStream = new DataOutputStream(socket.getOutputStream())) {
                 while (!Thread.interrupted()) {
                     Message message = messages.take();
-                    message.setUsername(XMLConnectedClient.this.getUsername());
+                    message.setUsername(message.getUsername());
                     logger.debug("Writing " + message.getMessage() + " to " + getUsername());
                     String msg = messageToXML.parseMessage((ServerMessage) message);
-                    logger.debug("After parsing " + msg); //TODO : remove
                     outputStream.writeInt(msg.getBytes(StandardCharsets.UTF_8).length);
                     outputStream.write(msg.getBytes(StandardCharsets.UTF_8));
                     outputStream.flush();

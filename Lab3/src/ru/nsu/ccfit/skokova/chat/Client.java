@@ -4,7 +4,6 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import ru.nsu.ccfit.skokova.chat.gui.ValueChangedHandler;
 import ru.nsu.ccfit.skokova.chat.message.LoginError;
-import ru.nsu.ccfit.skokova.chat.message.Message;
 
 import java.net.Socket;
 import java.util.ArrayList;
@@ -24,8 +23,8 @@ public abstract class Client {
     protected Thread inThread;
     protected Thread outThread;
 
-    protected BlockingQueue<Message> messages = new ArrayBlockingQueue<>(MESSAGES_COUNT); //TODO : queue of objects?
-    protected BlockingQueue<String> xmlMessages = new ArrayBlockingQueue<>(MESSAGES_COUNT);
+    protected BlockingQueue<Object> messages = new ArrayBlockingQueue<>(MESSAGES_COUNT); //TODO : queue of objects?
+    //protected BlockingQueue<String> xmlMessages = new ArrayBlockingQueue<>(MESSAGES_COUNT);
 
     protected BlockingQueue<Object> sentMessages = new ArrayBlockingQueue<>(MESSAGES_COUNT);
 
@@ -129,5 +128,9 @@ public abstract class Client {
 
     public BlockingQueue<Object> getSentMessages() {
         return sentMessages;
+    }
+
+    public BlockingQueue<Object> getMessages() {
+        return messages;
     }
 }

@@ -2,14 +2,9 @@ package ru.nsu.ccfit.skokova.chat.message;
 
 import ru.nsu.ccfit.skokova.chat.Client;
 
-import java.io.Serializable;
-
-public class TextMessageFromServer extends ServerMessage implements Serializable {
-    private String sentMessage;
-
+public class TextMessageFromServer extends ServerMessage {
     public TextMessageFromServer(String message, String sender) {
-        super(sender + ": " + message);
-        this.sentMessage = message;
+        this.message = message;
         this.username = sender;
     }
 
@@ -19,9 +14,12 @@ public class TextMessageFromServer extends ServerMessage implements Serializable
     }
 
     @Override
-    public void interpret(Client client) {}
+    public void interpret(Client client) {
+        client.notifyValueChanged(this);
+    }
 
-    public String getSentMessage() {
-        return sentMessage;
+    @Override
+    public String toString() {
+        return username + ": " + message;
     }
 }

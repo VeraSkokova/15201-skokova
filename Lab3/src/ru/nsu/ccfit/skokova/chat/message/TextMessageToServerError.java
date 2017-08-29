@@ -8,7 +8,9 @@ public class TextMessageToServerError extends ServerMessage {
     }
 
     @Override
-    public void interpret(Client client) {}
+    public void interpret(Client client) {
+        client.notifyValueChanged(this);
+    }
 
     @Override
     public String getMessage() {

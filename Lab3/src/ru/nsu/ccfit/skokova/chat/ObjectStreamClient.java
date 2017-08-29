@@ -43,9 +43,9 @@ public class ObjectStreamClient extends Client {
             socket = new Socket(server, port);
             logger.debug("Client server: " + server);
             logger.debug("Client port: " + port);
-        } catch(Exception ec) {
-            display("Error in connection to server:" + ec.getMessage());
-            logger.error("Error in connection to server:" + ec.getMessage());
+        } catch (Exception e) {
+            display("Error in connection to server:" + e.getMessage());
+            logger.error("Error in connection to server:" + e.getMessage());
         }
 
         try {
@@ -127,7 +127,7 @@ public class ObjectStreamClient extends Client {
                     ServerMessage message = (ServerMessage) inputStream.readObject();
                     logger.debug("ObjectStreamClient read " + message.getMessage());
                     message.interpret(ObjectStreamClient.this);
-                    notifyValueChanged(message);
+                    //notifyValueChanged(message);
                 } catch (IOException e) {
                     display("Server has closed the connection: " + e);
                     break;
@@ -143,7 +143,7 @@ public class ObjectStreamClient extends Client {
         public void run() {
             try {
                 while (true) {
-                    Message message = messages.take();
+                    Message message = (Message) messages.take();
                     sendMessage(message);
                     sentMessages.add(message);
                 }
