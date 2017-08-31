@@ -10,12 +10,10 @@ public class NewClientMessage extends ServerMessage {
 
     public NewClientMessage(String message) {
         this.message = message;
-        logger.debug("Creating NewClientMessage with username " + message);
     }
 
     @Override
     public void interpret(Client client) {
-        logger.debug("Client got " + this.toString());
         client.notifyValueChanged(this);
     }
 
@@ -26,7 +24,6 @@ public class NewClientMessage extends ServerMessage {
 
     @Override
     public String toString() {
-        logger.debug("Getting username " + this.username);
         return this.message + " logged in";
     }
 }

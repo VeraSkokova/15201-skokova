@@ -10,7 +10,7 @@ import java.io.ByteArrayInputStream;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
-import java.net.Socket;
+import java.net.SocketTimeoutException;
 import java.nio.charset.StandardCharsets;
 
 public class XMLClient extends Client {
@@ -38,11 +38,15 @@ public class XMLClient extends Client {
 
     public void start() {
         try {
-            socket = new Socket(server, port);
-            logger.debug("Client server: " + server);
-            logger.debug("Client port: " + port);
-        } catch (Exception e) {
+            createSocket();
+        } catch (SocketTimeoutException e) {
+            logger.error("Socket timeout exceeded");
+            clientConnectedHandler.handle(false);
+            return;
+        } catch (IOException e) {
             logger.error("Error in connection to server:" + e.getMessage());
+            clientConnectedHandler.handle(false);
+            return;
         }
 
         messages.add(xmlMessageCreator.createLoginMessage(username, "XML"));
@@ -135,14 +139,15 @@ public class XMLClient extends Client {
                         logger.error("Message hasn't been read");
                     } else {
                         String msg = new String(messageBytes);
-                        logger.debug("Received " + msg);
-                        ServerMessage serverMessage = xmlMessageInterpreter.interpret(msg); //TODO : duplication
+                        ServerMessage serverMessage = xmlMessageInterpreter.interpret(msg);
                         logger.debug("XMLClient read " + serverMessage.getClass());
                         serverMessage.interpret(XMLClient.this);
                     }
                 }
             } catch (IOException e) {
                 logger.info("Server has closed the connection");
+                setLoggedIn(false);
+                clientConnectedHandler.handle(false);
                 disconnect();
                 interrupt();
             }
@@ -156,7 +161,6 @@ public class XMLClient extends Client {
             try {
                 while (true) {
                     String message = (String) messages.take();
-                    logger.debug("Gonna send " + message);
                     sendMessage(message);
                     Message msg = xmlToMessage.parseMessage(new InputSource(new ByteArrayInputStream(message.getBytes(StandardCharsets.UTF_8))));
                     msg.setUsername(username);

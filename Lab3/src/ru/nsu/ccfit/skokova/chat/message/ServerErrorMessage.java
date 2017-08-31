@@ -10,7 +10,7 @@ public class ServerErrorMessage extends ServerMessage {
     @Override
     public void interpret(Client client) {
         try {
-            Message temp = (Message) client.getSentMessages().take();
+            Message temp = client.getSentMessages().take();
             /*if (temp instanceof LogoutMessage) {
                 LogoutError logoutError = new LogoutError(message);
                 logoutError.interpret(client);

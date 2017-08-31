@@ -11,11 +11,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class ConfigParser {
-    private String fileName;
-
     static Map<String, Integer> map = new HashMap<>();
-    private boolean enableLogs;
-
     private static Logger logger = LogManager.getLogger(ConfigParser.class);
 
     static {
@@ -23,11 +19,32 @@ public class ConfigParser {
         map.put("XMLPort", 0);
     }
 
+    private String fileName;
+    private boolean enableLogs;
+
+    public ConfigParser(String fileName) throws IOException, BadParseException {
+        this.fileName = fileName;
+        File file = new File(this.fileName);
+        try (FileReader str = new FileReader(file);
+             BufferedReader reader = new BufferedReader(str)) {
+            String temp = reader.readLine();
+            while (temp != null) {
+                temp = temp.trim();
+                this.parseString(temp);
+                temp = reader.readLine();
+            }
+        }
+    }
+
     public void parseString(String str) throws BadParseException {
         int indexOfEq = str.indexOf('=');
         String line = str.substring(0, indexOfEq);
         line = line.trim();
-       if (map.containsKey(line)) {
+        if (line.equals("EnableLog")) {
+            String numberLine = str.substring(indexOfEq + 1);
+            numberLine = numberLine.trim();
+            this.enableLogs = Boolean.parseBoolean(numberLine);
+        } else if (map.containsKey(line)) {
             String numberLine = str.substring(indexOfEq + 1);
             numberLine = numberLine.trim();
             int val = Integer.parseInt(numberLine);
@@ -42,18 +59,8 @@ public class ConfigParser {
         }
     }
 
-    public ConfigParser(String fileName) throws IOException, BadParseException {
-        this.fileName = fileName;
-        File file = new File(this.fileName);
-        try (FileReader str = new FileReader(file);
-             BufferedReader reader = new BufferedReader(str)) {
-            String temp = reader.readLine();
-            while (temp != null) {
-                temp = temp.trim();
-                this.parseString(temp);
-                temp = reader.readLine();
-            }
-        }
+    public boolean isEnableLogs() {
+        return enableLogs;
     }
 }
 

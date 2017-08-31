@@ -5,13 +5,17 @@ import org.apache.logging.log4j.Logger;
 import ru.nsu.ccfit.skokova.chat.gui.ClientConnectedHandler;
 import ru.nsu.ccfit.skokova.chat.gui.ValueChangedHandler;
 import ru.nsu.ccfit.skokova.chat.message.LoginError;
+import ru.nsu.ccfit.skokova.chat.message.Message;
 
+import java.io.IOException;
+import java.net.InetSocketAddress;
 import java.net.Socket;
 import java.util.ArrayList;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
 
 public abstract class Client {
+    protected static final int TIMEOUT = 10000;
     private static final int MESSAGES_COUNT = 10000;
     protected Socket socket;
     protected boolean isLoggedIn;
@@ -24,8 +28,8 @@ public abstract class Client {
     protected Thread inThread;
     protected Thread outThread;
 
-    protected BlockingQueue<Object> messages = new ArrayBlockingQueue<>(MESSAGES_COUNT); //TODO : queue of objects?
-    protected BlockingQueue<Object> sentMessages = new ArrayBlockingQueue<>(MESSAGES_COUNT);
+    protected BlockingQueue<Object> messages = new ArrayBlockingQueue<>(MESSAGES_COUNT);
+    protected BlockingQueue<Message> sentMessages = new ArrayBlockingQueue<>(MESSAGES_COUNT);
 
     protected ArrayList<ValueChangedHandler> handlers = new ArrayList<>();
     protected ClientConnectedHandler clientConnectedHandler;
@@ -52,9 +56,6 @@ public abstract class Client {
         for (ValueChangedHandler handler : handlers) {
             handler.handle(value);
         }
-    }
-
-    public void sendErrorMessage() {
     }
 
     public void start() {
@@ -125,7 +126,7 @@ public abstract class Client {
         this.port = port;
     }
 
-    public BlockingQueue<Object> getSentMessages() {
+    public BlockingQueue<Message> getSentMessages() {
         return sentMessages;
     }
 
@@ -135,5 +136,13 @@ public abstract class Client {
 
     public void setClientConnectedHandler(ClientConnectedHandler clientConnectedHandler) {
         this.clientConnectedHandler = clientConnectedHandler;
+    }
+
+    protected void createSocket() throws IOException {
+        socket = new Socket();
+        socket.setKeepAlive(true);
+        socket.connect(new InetSocketAddress(server, port), TIMEOUT);
+        logger.debug("Client server: " + server);
+        logger.debug("Client port: " + port);
     }
 }

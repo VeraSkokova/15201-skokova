@@ -10,7 +10,7 @@ public class LoginError extends ServerMessage {
     @Override
     public void interpret(Client client) {
         try {
-            Object loginMessage = client.getSentMessages().take();
+            Message loginMessage = client.getSentMessages().take();
             client.notifyValueChanged(this);
         } catch (InterruptedException e) {
             logger.debug(e.getMessage());

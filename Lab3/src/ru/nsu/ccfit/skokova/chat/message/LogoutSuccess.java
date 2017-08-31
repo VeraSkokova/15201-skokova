@@ -10,7 +10,7 @@ public class LogoutSuccess extends ServerMessage {
     @Override
     public void interpret(Client client) {
         try {
-            Object logoutMessage = client.getSentMessages().take();
+            Message logoutMessage = client.getSentMessages().take();
         } catch (InterruptedException e) {
             logger.warn(e.getMessage());
         }

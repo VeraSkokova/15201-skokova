@@ -45,7 +45,7 @@ public class ObjectStreamConnectedClient extends ConnectedClient {
 
     public void login(Server server) {
         this.setSessionId(server.setUserSessionId());
-    } //TODO : how???
+    }
 
     public class Reader implements Runnable {
         @Override

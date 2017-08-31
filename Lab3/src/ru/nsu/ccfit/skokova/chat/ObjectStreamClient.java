@@ -8,7 +8,7 @@ import ru.nsu.ccfit.skokova.chat.message.*;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
-import java.net.Socket;
+import java.net.SocketTimeoutException;
 
 public class ObjectStreamClient extends Client {
     private static final Logger logger = LogManager.getLogger(ObjectStreamClient.class);
@@ -27,11 +27,8 @@ public class ObjectStreamClient extends Client {
     }
 
     public static void main(String[] args) {
-        int portNumber = 4500;
-        String serverAddress = "localhost";
-        String userName = "Anonymous";
 
-        Client client = new ObjectStreamClient(serverAddress, portNumber, userName);
+        Client client = new ObjectStreamClient();
         ClientFrame clientFrame = new ClientFrame(client);
         client.addHandler(clientFrame.new MessageUpdater());
 
@@ -40,17 +37,19 @@ public class ObjectStreamClient extends Client {
 
     public void start() {
         try {
-            socket = new Socket(server, port);
-            logger.debug("Client server: " + server);
-            logger.debug("Client port: " + port);
-        } catch (Exception e) {
-            display("Error in connection to server:" + e.getMessage());
+            createSocket();
+        } catch (SocketTimeoutException e) {
+            logger.error("Socket timeout exceeded");
+            clientConnectedHandler.handle(false);
+            return;
+        } catch (IOException e) {
             logger.error("Error in connection to server:" + e.getMessage());
+            clientConnectedHandler.handle(false);
+            return;
         }
 
         try {
-            String message = "Connection accepted " + socket.getInetAddress() + ":" + socket.getPort();
-            display(message);
+            logger.info("Connection accepted " + socket.getInetAddress() + ":" + socket.getPort());
         } catch (NullPointerException e) {
             notifyValueChanged(new LoginError("Server is not opened"));
             return;
@@ -62,7 +61,6 @@ public class ObjectStreamClient extends Client {
             this.inputStream = new ObjectInputStream(socket.getInputStream());
             this.outputStream = new ObjectOutputStream(socket.getOutputStream());
         } catch (IOException e) {
-            display("Exception creating new Input/output Streams: " + e.getMessage());
             logger.error("Exception creating new Input/output Streams: " + e.getMessage());
         }
 
@@ -71,10 +69,6 @@ public class ObjectStreamClient extends Client {
 
         this.inThread.start();
         this.outThread.start();
-    }
-
-    private void display(String msg) {
-        logger.info(msg);
     }
 
     public void sendTextMessage(String message) {
@@ -101,7 +95,7 @@ public class ObjectStreamClient extends Client {
             logger.info(username + " send " + msg.getMessage());
             outputStream.writeObject(msg);
         } catch(IOException e) {
-            display("Exception writing to server: " + e.getMessage());
+            logger.error("Exception writing to server: " + e.getMessage());
         }
     }
 
@@ -128,7 +122,11 @@ public class ObjectStreamClient extends Client {
                     logger.debug("ObjectStreamClient read " + message.getMessage());
                     message.interpret(ObjectStreamClient.this);
                 } catch (IOException e) {
-                    display("Server has closed the connection: " + e);
+                    logger.info("Server has closed the connection");
+                    setLoggedIn(false);
+                    clientConnectedHandler.handle(false);
+                    disconnect();
+                    interrupt();
                     break;
                 } catch (ClassNotFoundException e) {
                     System.out.println(e.getMessage());

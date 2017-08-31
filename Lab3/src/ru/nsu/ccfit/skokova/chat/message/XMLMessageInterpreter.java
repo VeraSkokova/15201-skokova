@@ -4,7 +4,6 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
-import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
@@ -31,10 +30,10 @@ public class XMLMessageInterpreter {
         try {
             DocumentBuilder documentBuilder = DocumentBuilderFactory.newInstance().newDocumentBuilder();
             Document document = documentBuilder.parse(new InputSource(new ByteArrayInputStream(message.getBytes(StandardCharsets.UTF_8))));
-            Node root = document.getDocumentElement();
-            Element element = (Element)root;
+            Element element = document.getDocumentElement();
+            String root = element.getTagName();
 
-            switch (root.getNodeName()) {
+            switch (root) {
                 case "error":
                     serverMessage = parseServerErrorMessage(element);
                     break;
@@ -59,17 +58,13 @@ public class XMLMessageInterpreter {
                     }
                     break;
                 case "success":
-                    if (element.getChildNodes().item(0) == null) {
-                        serverMessage = parseServerSuccessMessage(element);
+                    NodeList users = document.getElementsByTagName("user");
+                    if (users.getLength() != 0) {
+                        serverMessage = parseUserListSuccess(users);
+                    } else if (document.getElementsByTagName("session").item(0) != null) {
+                        serverMessage = parseLoginSuccessMessage(element);
                     } else {
-                        switch (element.getChildNodes().item(0).getNodeName()) {
-                            case "listusers":
-                                serverMessage = parseUserListSuccess(element);
-                                break;
-                            case "session":
-                                serverMessage = parseLoginSuccessMessage(element);
-                                break;
-                        }
+                        serverMessage = parseServerSuccessMessage();
                     }
                     break;
             }
@@ -119,39 +114,20 @@ public class XMLMessageInterpreter {
     private LoginSuccess parseLoginSuccessMessage(Element element) {
         String sessionId = element.getElementsByTagName("session").item(0).getTextContent();
         int sessionID = Integer.parseInt(sessionId);
-        client.setLoggedIn(true);
-        client.setSessionId(sessionID);
         LoginSuccess loginSuccess = new LoginSuccess(sessionID);
         loginSuccess.setMessage("Welcome!");
         return loginSuccess;
     }
 
-    public ServerSuccessMessage parseServerSuccessMessage(Element element) {
+    private ServerSuccessMessage parseServerSuccessMessage() {
         return new ServerSuccessMessage();
     }
 
-    public UserListSuccess parseUserListSuccess(Element element) {
-        String userList = "\nList of the users:\n";
-        NodeList nodeList = element.getChildNodes();
+    private UserListSuccess parseUserListSuccess(NodeList nodeList) {
+        String userList = "\nList of the users\n";
         for (int i = 0; i < nodeList.getLength(); i++) {
-            Node node = nodeList.item(i);
-            if (node.getNodeType() != Node.TEXT_NODE) {
-                NodeList nodes = node.getChildNodes();
-                for (int j = 0; j < nodes.getLength(); j++) {
-                    Node listuser = nodes.item(j);
-                    if (listuser.getNodeType() != Node.TEXT_NODE) {
-                        NodeList users = listuser.getChildNodes();
-                        userList += j + ". ";
-                        for (int k = 0; k < users.getLength(); k++) {
-                            Node user = users.item(k);
-                            if (user.getNodeType() != Node.TEXT_NODE) {
-                                userList += user.getChildNodes().item(0).getTextContent() + " ";
-                            }
-                        }
-                        userList += "\n";
-                    }
-                }
-            }
+            Element user = (Element) nodeList.item(i);
+            userList += "-" + user.getElementsByTagName("name").item(0).getTextContent() + " " + user.getElementsByTagName("type").item(0).getTextContent() + "\n";
         }
         return new UserListSuccess(userList);
     }

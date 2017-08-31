@@ -99,8 +99,6 @@ public class ClientFrame extends JFrame {
                 loginButton.setEnabled(true);
                 logoutButton.setEnabled(false);
                 usersButton.setEnabled(false);
-                serverField.setEditable(true);
-                portField.setEditable(true);
                 usernameField.setEditable(true);
                 messageField.setEditable(false);
             }

@@ -1,2 +1,3 @@
 ObjectPort=4500
 XMLPort=1700
+EnableLog=true

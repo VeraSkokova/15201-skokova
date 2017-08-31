@@ -15,7 +15,7 @@ public class UserListSuccess extends ServerMessage {
     @Override
     public void interpret(Client client) {
         try {
-            Object userListMessage = client.getSentMessages().take();
+            Message userListMessage = client.getSentMessages().take();
             client.notifyValueChanged(this);
         } catch (InterruptedException e) {
             logger.debug(e.getMessage());

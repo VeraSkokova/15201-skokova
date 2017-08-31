@@ -1,7 +1,9 @@
 package ru.nsu.ccfit.skokova.chat;
 
+import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.core.config.Configurator;
 import ru.nsu.ccfit.skokova.chat.message.ChatMessage;
 import ru.nsu.ccfit.skokova.chat.message.Message;
 
@@ -45,11 +47,15 @@ public class Server {
     public Server(ConfigParser configParser) {
         this.firstPort = ConfigParser.map.get("ObjectPort");
         this.secondPort = ConfigParser.map.get("XMLPort");
+        if (!configParser.isEnableLogs()) {
+            Logger logger = LogManager.getRootLogger();
+            Configurator.setLevel(logger.getName(), Level.OFF);
+        }
     }
 
     public static void main(String[] args) {
         try (BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(System.in))) {
-            ConfigParser configParser = new ConfigParser("/home/veraskokova/IdeaProjects/Chat/src/MyConfig.txt");
+            ConfigParser configParser = new ConfigParser("src/MyConfig.txt");
             Server server = new Server(configParser);
             server.start();
             while (bufferedReader.readLine().compareTo("stop") != 0) ;
