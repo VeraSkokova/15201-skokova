@@ -6,8 +6,6 @@ import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 import ru.nsu.ccfit.skokova.chat.message.*;
 
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 import java.io.ByteArrayInputStream;
 import java.io.DataInputStream;
@@ -15,20 +13,9 @@ import java.io.DataOutputStream;
 import java.io.IOException;
 import java.net.Socket;
 import java.nio.charset.StandardCharsets;
-import java.util.Date;
 
 public class XMLConnectedClient extends ConnectedClient {
     private static final Logger logger = LogManager.getLogger(Server.class);
-    private DocumentBuilder documentBuilder;
-
-    public XMLConnectedClient(Socket socket, Server server, String username) {
-        super(socket, server);
-        this.username = username;
-        this.type = "XML";
-        this.readerThread = new Thread(new XMLConnectedClient.Reader());
-        this.writerThread = new Thread(new XMLConnectedClient.Writer());
-        this.date = new Date().toString() + "\n";
-    }
 
     public XMLConnectedClient(Socket socket, Server server) {
         super(socket, server);
@@ -64,30 +51,32 @@ public class XMLConnectedClient extends ConnectedClient {
     }
 
     public class Reader implements Runnable {
-        XMLToMessage xmlToMessage = new XMLToMessage();
         @Override
         public void run() {
-            try (DataInputStream inputStream = new DataInputStream(socket.getInputStream())) {
+            XMLToMessage xmlToMessage = new XMLToMessage();
+            try {
+                DataInputStream inputStream = new DataInputStream(socket.getInputStream());
                 ByteReader byteReader = new ByteReader(inputStream);
-                documentBuilder = DocumentBuilderFactory.newInstance().newDocumentBuilder();
                 while (!Thread.interrupted()) {
                     if (!isValid) {
                         break;
                     }
                     byte[] message = byteReader.readMessage();
                     String msg = new String(message, StandardCharsets.UTF_8);
-                    //Document document = documentBuilder.parse(new InputSource(new ByteArrayInputStream(msg.getBytes(StandardCharsets.UTF_8))));
                     ChatMessage chatMessage = xmlToMessage.parseMessage(new InputSource(new ByteArrayInputStream(msg.getBytes(StandardCharsets.UTF_8))));
                     chatMessage.setUsername(XMLConnectedClient.this.getUsername());
                     chatMessage.setSessionId(sessionId);
                     chatMessage.process(server, XMLConnectedClient.this);
                 }
             } catch (IOException e) {
-                logger.error("Can't read message :" + e.getMessage() + " I'm " + getSessionId());
+                logger.error("Can't read message :" + e.getMessage());
                 close();
                 interrupt();
             } catch (ParserConfigurationException | SAXException e) {
                 logger.error("Can't parse message :" + e.getMessage());
+            } catch (OutOfMemoryError e) {
+                logger.error("Big message");
+                messages.add(new TextMessageToServerError("Message is too big"));
             }
         }
     }
@@ -96,23 +85,23 @@ public class XMLConnectedClient extends ConnectedClient {
         MessageToXML messageToXML = new MessageToXML();
         @Override
         public void run() {
-            try (DataOutputStream outputStream = new DataOutputStream(socket.getOutputStream())) {
+            try {
+                DataOutputStream outputStream = new DataOutputStream(socket.getOutputStream());
                 while (!Thread.interrupted()) {
                     Message message = messages.take();
-                    message.setUsername(message.getUsername());
-                    logger.debug("Writing " + message.getMessage() + " to " + getUsername());
+                    logger.debug("Writing " + message.getClass() + " " + message.toString() + " to " + getUsername());
                     String msg = messageToXML.parseMessage((ServerMessage) message);
                     outputStream.writeInt(msg.getBytes(StandardCharsets.UTF_8).length);
                     outputStream.write(msg.getBytes(StandardCharsets.UTF_8));
                     outputStream.flush();
                 }
             } catch (IOException e) {
-                logger.info("Can't create an outputStream, " + e.getMessage());
+                logger.info("Can't create an outputStream: " + e.getMessage());
                 if (server.getConnectedClients().contains(XMLConnectedClient.this)) {
                     server.removeClient(XMLConnectedClient.this);
                 }
-                interrupt();
-                close();
+                //interrupt();
+                //close();
             } catch (InterruptedException e) {
                 Thread.currentThread().interrupt();
                 logger.warn("Writer was interrupted");

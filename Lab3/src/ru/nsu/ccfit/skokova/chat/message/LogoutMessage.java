@@ -16,13 +16,11 @@ public class LogoutMessage extends ChatMessage {
             server.sendMessage(new LogoutError("Authentication error"), connectedClient);
         } else {
             server.display(connectedClient.getUsername() + " disconnected with a LOGOUT message.");
-            ClientLoggedOutMessage textMessageFromServer = new ClientLoggedOutMessage(connectedClient.getUsername());
-            server.sendMessage(textMessageFromServer, connectedClient);
             server.sendMessage(new LogoutSuccess(), connectedClient);
             server.getUsernames().remove(connectedClient.getUsername());
-            connectedClient.interrupt();
-            connectedClient.close();
+            //connectedClient.interrupt();
             server.removeClient(connectedClient);
+            ClientLoggedOutMessage textMessageFromServer = new ClientLoggedOutMessage(connectedClient.getUsername());
             server.broadcast(textMessageFromServer);
             server.saveMessage(textMessageFromServer);
         }

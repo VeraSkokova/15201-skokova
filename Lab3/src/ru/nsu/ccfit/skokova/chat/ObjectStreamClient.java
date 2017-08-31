@@ -127,7 +127,6 @@ public class ObjectStreamClient extends Client {
                     ServerMessage message = (ServerMessage) inputStream.readObject();
                     logger.debug("ObjectStreamClient read " + message.getMessage());
                     message.interpret(ObjectStreamClient.this);
-                    //notifyValueChanged(message);
                 } catch (IOException e) {
                     display("Server has closed the connection: " + e);
                     break;
@@ -145,6 +144,7 @@ public class ObjectStreamClient extends Client {
                 while (true) {
                     Message message = (Message) messages.take();
                     sendMessage(message);
+                    message.setUsername(username);
                     sentMessages.add(message);
                 }
             } catch (InterruptedException e) {

@@ -1,14 +1,9 @@
 package ru.nsu.ccfit.skokova.chat.message;
 
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-
 public class MessageToXML {
-    private static final Logger logger = LogManager.getLogger(MessageToXML.class);
+    private static final XMLMessageCreator xmlMessageCreator = new XMLMessageCreator();
 
-    private XMLMessageCreator xmlMessageCreator = new XMLMessageCreator();
-
-    public String parseMessage(ServerMessage serverMessage) {
+    public static String parseMessage(ServerMessage serverMessage) {
         String result = "";
         switch (serverMessage.getClass().getSimpleName()) {
             case "LoginError":

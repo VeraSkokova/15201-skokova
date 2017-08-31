@@ -19,6 +19,7 @@ public class LoginSuccess extends ServerMessage {
         } catch (InterruptedException e) {
             logger.debug(e.getMessage());
         }
+        client.getClientConnectedHandler().handle(true);
     }
 
     public int getSessionId() {

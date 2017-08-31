@@ -12,7 +12,9 @@ import java.awt.event.ActionListener;
 
 public class ClientFrame extends JFrame {
     private static final Logger logger = LogManager.getLogger(Server.class);
+
     private Client client;
+
     private JTextField serverField;
     private JTextField portField;
     private JTextField usernameField;
@@ -32,7 +34,7 @@ public class ClientFrame extends JFrame {
         setButtons();
         setConnectionInfo();
         setMessageField();
-        //client.addHandler(new MessageUpdater());
+        addClientConnectedHandler();
     }
 
     private void setConnectionInfo() {
@@ -43,8 +45,17 @@ public class ClientFrame extends JFrame {
 
     private void setButtons() {
         this.loginButton.addActionListener(actionEvent -> {
-            if (!client.isLoggedIn()) {
-                client.start();
+            if (!client.isLoggedIn() && isClientReady()) {
+                try {
+                    client.setServer(serverField.getText());
+                    checkPortNumber();
+                    client.setUsername(usernameField.getText());
+                    messageArea.setText("");
+                    client.start();
+                } catch (NumberFormatException e) {
+                    portField.setForeground(Color.RED);
+                    logger.error("Invalid port number");
+                }
             } else {
                 logger.warn("Bad request");
             }
@@ -74,9 +85,30 @@ public class ClientFrame extends JFrame {
         });
     }
 
+    private void addClientConnectedHandler() {
+        client.setClientConnectedHandler(isConnected -> {
+            if (isConnected) {
+                loginButton.setEnabled(false);
+                logoutButton.setEnabled(true);
+                usersButton.setEnabled(true);
+                serverField.setEditable(false);
+                portField.setEditable(false);
+                usernameField.setEditable(false);
+                messageField.setEditable(true);
+            } else {
+                loginButton.setEnabled(true);
+                logoutButton.setEnabled(false);
+                usersButton.setEnabled(false);
+                serverField.setEditable(true);
+                portField.setEditable(true);
+                usernameField.setEditable(true);
+                messageField.setEditable(false);
+            }
+        });
+    }
+
     private void createAndShowGUI() {
         addConnectionInfo();
-        //this.connectionPanel.setBackground(new Color(240, 255, 255));
         addLoginInfo();
         addChatPanel();
         addSouthPanel();
@@ -101,7 +133,7 @@ public class ClientFrame extends JFrame {
     private void addLoginInfo() {
         JLabel usernameLabel = new JLabel();
         usernameLabel.setText("Username");
-        this.usernameField = new JTextField("Username");
+        this.usernameField = new JTextField();
         this.connectionPanel.add(usernameLabel);
         this.connectionPanel.add(this.usernameField);
     }
@@ -122,12 +154,13 @@ public class ClientFrame extends JFrame {
         this.logoutButton = new JButton("Logout");
         this.logoutButton.setForeground(Color.WHITE);
         this.logoutButton.setBackground(new Color(32, 50, 100));
+        this.logoutButton.setEnabled(false);
         this.usersButton = new JButton("UserList");
         this.usersButton.setForeground(Color.WHITE);
         this.usersButton.setBackground(new Color(32, 50, 100));
+        this.usersButton.setEnabled(false);
 
         JPanel buttonPanel = new JPanel();
-        //buttonPanel.setBackground(new Color(240, 255, 255));
         buttonPanel.add(this.loginButton);
         buttonPanel.add(this.usersButton);
         buttonPanel.add(this.logoutButton);
@@ -135,6 +168,7 @@ public class ClientFrame extends JFrame {
         JPanel messagePanel = new JPanel(new GridLayout(1, 2, 1, 3));
         JLabel messageLabel = new JLabel("Send your message");
         this.messageField = new JTextField();
+        this.messageField.setEditable(false);
         messagePanel.add(messageLabel);
         messagePanel.add(this.messageField);
 
@@ -146,12 +180,36 @@ public class ClientFrame extends JFrame {
     }
 
     public void dispose() {
-        if (client.isLoggedIn()) {
-            client.sendLogoutMessage();
-            client.disconnect();
-            client.interrupt();
+        if (logoutButton.isEnabled()) {
+            logoutButton.doClick();
         }
+        super.dispose();
         System.exit(0);
+    }
+
+    private boolean isClientReady() {
+        boolean result = true;
+        if (serverField.getText().isEmpty()) {
+            serverField.setText("Enter server name");
+            result = false;
+        }
+        if (portField.getText().isEmpty()) {
+            portField.setText("Enter port number");
+            result = false;
+        }
+        if (usernameField.getText().isEmpty()) {
+            usernameField.setText("Enter username");
+            result = false;
+        }
+        return result;
+    }
+
+    private void checkPortNumber() throws NumberFormatException {
+        int value = Integer.parseInt(portField.getText());
+        if ((value < Server.MIN_PORT_NUMBER) || (value > Server.MAX_PORT_NUMBER)) {
+            throw new NumberFormatException("Incorrect value");
+        }
+        client.setPort(value);
     }
 
     class PortListener implements ActionListener {
@@ -162,11 +220,7 @@ public class ClientFrame extends JFrame {
                     portField.setText("Enter port number");
                 } else {
                     if (!client.isLoggedIn()) {
-                        int value = Integer.parseInt(portField.getText());
-                        if ((value < Server.MIN_PORT_NUMBER) || (value > Server.MAX_PORT_NUMBER)) {
-                            throw new NumberFormatException("Incorrect value");
-                        }
-                        client.setPort(value);
+                        checkPortNumber();
                     } else {
                         logger.warn("Bad request");
                     }
@@ -219,7 +273,6 @@ public class ClientFrame extends JFrame {
         public void handle(Object value) {
             if (client.isLoggedIn()) {
                 if (value != null) {
-                    logger.debug("client is handling " + value); //TODO : remove
                     messageArea.append(value.toString() + "\n");
                     messageArea.setCaretPosition(messageArea.getText().length() - 1);
                 }

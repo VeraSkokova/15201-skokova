@@ -3,31 +3,22 @@ package ru.nsu.ccfit.skokova.chat;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import ru.nsu.ccfit.skokova.chat.message.Message;
+import ru.nsu.ccfit.skokova.chat.message.TextMessageToServerError;
 
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.Socket;
-import java.util.Date;
 
 public class ObjectStreamConnectedClient extends ConnectedClient {
     private static final Logger logger = LogManager.getLogger(Server.class);
 
-    public ObjectStreamConnectedClient(Socket socket, Server server, String username) {
-        super(socket, server);
-        this.username = username;
-        this.type = "ObjectStream";
-        this.readerThread = new Thread(new Reader());
-        this.writerThread = new Thread(new Writer());
-        this.date = new Date().toString() + "\n";
-    }
 
     public ObjectStreamConnectedClient(Socket socket, Server server) {
         super(socket, server);
         this.type = "ObjectStream";
         this.readerThread = new Thread(new Reader());
         this.writerThread = new Thread(new Writer());
-        this.date = new Date().toString() + "\n";
     }
 
     public void run() {
@@ -56,34 +47,31 @@ public class ObjectStreamConnectedClient extends ConnectedClient {
         this.setSessionId(server.setUserSessionId());
     } //TODO : how???
 
-    public Socket getSocket() {
-        return socket;
-    }
-
     public class Reader implements Runnable {
         @Override
         public void run() {
-            try (ObjectInputStream inputStream = new ObjectInputStream(socket.getInputStream())) {
+            try {
+                ObjectInputStream inputStream = new ObjectInputStream(socket.getInputStream());
                 while(!Thread.interrupted()) {
                     if (!isValid) {
                         break;
                     }
                     Message message = (Message) inputStream.readObject();
-                    logger.debug("Server get " + message.getMessage() + " from " + getUsername());
-                    logger.debug("Message type is " + message.getClass());
                     message.setUsername(ObjectStreamConnectedClient.this.getUsername());
                     message.process(server, ObjectStreamConnectedClient.this);
-                    logger.debug("Processed message");
                 }
                 if (Thread.currentThread().isInterrupted()) {
                     System.out.println("Reader was interrupted");
                 }
             } catch (IOException e) {
-                logger.error("Can't read message :" + e.getMessage() + " I'm " + getSessionId());
+                logger.error("Can't read message (IOException)");
             } catch (ClassNotFoundException | ClassCastException e) {
                 logger.error("Unknown type of message. " + e.getMessage());
             } catch (NullPointerException e) {
                 logger.error("Invalid type of message: " + e.getCause());
+            } catch (OutOfMemoryError e) {
+                logger.error("Big message");
+                messages.add(new TextMessageToServerError("Message is too big"));
             }
         }
     }
@@ -91,7 +79,8 @@ public class ObjectStreamConnectedClient extends ConnectedClient {
     public class Writer implements Runnable {
         @Override
         public void run() {
-            try (ObjectOutputStream outputStream = new ObjectOutputStream(socket.getOutputStream())) {
+            try {
+                ObjectOutputStream outputStream = new ObjectOutputStream(socket.getOutputStream());
                 while(!Thread.interrupted()) {
                     Message message = messages.take();
                     outputStream.writeObject(message);

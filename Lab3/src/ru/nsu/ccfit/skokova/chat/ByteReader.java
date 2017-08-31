@@ -18,7 +18,6 @@ public class ByteReader {
     public byte[] readMessage() throws IOException {
         byte[] message = null;
         int length = inputStream.readInt();
-        logger.debug("XMLClient, message length is " + Integer.toString(length));
 
         if (length < 0) {
             logger.warn("Can't read");

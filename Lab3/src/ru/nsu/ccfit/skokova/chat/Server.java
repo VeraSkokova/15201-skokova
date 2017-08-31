@@ -50,8 +50,6 @@ public class Server {
     public static void main(String[] args) {
         try (BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(System.in))) {
             ConfigParser configParser = new ConfigParser("/home/veraskokova/IdeaProjects/Chat/src/MyConfig.txt");
-        /*int portNumber = 4500;
-        int anotherPortNumber = 1700;*/
             Server server = new Server(configParser);
             server.start();
             while (bufferedReader.readLine().compareTo("stop") != 0) ;
@@ -99,7 +97,7 @@ public class Server {
     public synchronized void broadcast(Message message) {
         for (ConnectedClient connectedClient : connectedClients) {
             if ((connectedClient.isValid()) && (!connectedClient.getUsername().equals(message.getUsername()))) {
-                logger.debug("Sending " + message.getMessage() + " from " + message.getUsername() + " to" + connectedClient.getUsername());
+                logger.debug("Sending " + message.getMessage() + " from " + message.getUsername() + " to " + connectedClient.getUsername());
                 sendMessage(message, connectedClient);
             }
         }
@@ -143,20 +141,12 @@ public class Server {
         ObjectStreamConnectedClient connectedClient = new ObjectStreamConnectedClient(socket, this);
         connectedClient.run();
         connectedClient.login(this);
-        //broadcast(new TextMessageFromServer("New user logged in", "Server"));
-        /*for (Message message : messageHistory) {
-            sendMessage(message, connectedClient);
-        }*/
     }
 
     public void connectXMLClient(Socket socket) {
         XMLConnectedClient connectedClient = new XMLConnectedClient(socket, this);
         connectedClient.run();
         connectedClient.login(this);
-        //broadcast(new TextMessageFromServer("New user logged in", "Server"));
-        /*for (Message message : messageHistory) {
-            sendMessage(message, connectedClient);
-        }*/
     }
 
     class ObjectStreamAcceptor implements Runnable {
@@ -174,6 +164,7 @@ public class Server {
                     }
                 } catch (IOException e) {
                     logger.error(" Exception on new ServerSocket: " + e.getMessage());
+                    Thread.currentThread().interrupt();
                 }
             }
         }
@@ -194,6 +185,7 @@ public class Server {
                     }
                 } catch (IOException e) {
                     logger.error(" Exception on new ServerSocket: " + e.getMessage());
+                    Thread.currentThread().interrupt();
                 }
             }
         }

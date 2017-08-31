@@ -14,10 +14,9 @@ public class TextMessageToServerSuccess extends ServerMessage {
 
     @Override
     public void interpret(Client client) {
-        //If client gets this message, it needs to take message from its queue and show it
         try {
             Object message = client.getSentMessages().take();
-            //logger.debug("Took message " + message);
+            logger.debug("Took msg " + message);
 
             if (message != null) {
                 client.notifyValueChanged(message);

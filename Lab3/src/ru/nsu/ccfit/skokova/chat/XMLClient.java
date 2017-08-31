@@ -29,11 +29,7 @@ public class XMLClient extends Client {
     }
 
     public static void main(String[] args) {
-        int portNumber = 1700;
-        String serverAddress = "localhost";
-        String userName = "Anonymous";
-
-        Client client = new XMLClient(serverAddress, portNumber, userName);
+        Client client = new XMLClient();
         ClientFrame clientFrame = new ClientFrame(client);
         client.addHandler(clientFrame.new MessageUpdater());
 
@@ -45,8 +41,8 @@ public class XMLClient extends Client {
             socket = new Socket(server, port);
             logger.debug("Client server: " + server);
             logger.debug("Client port: " + port);
-        } catch (Exception ec) {
-            logger.error("Error in connection to server:" + ec.getMessage());
+        } catch (Exception e) {
+            logger.error("Error in connection to server:" + e.getMessage());
         }
 
         messages.add(xmlMessageCreator.createLoginMessage(username, "XML"));
@@ -75,17 +71,14 @@ public class XMLClient extends Client {
 
     public void sendTextMessage(String message) {
         messages.add(xmlMessageCreator.createClientMessage(message, Integer.toString(sessionId)));
-        //sendMessage(xmlMessageCreator.createClientMessage(message, Integer.toString(sessionId))); //!!!!!!!!!!
     }
 
     public void sendLogoutMessage() {
         messages.add(xmlMessageCreator.createLogoutMessage(Integer.toString(this.sessionId)));
-        //sendMessage(xmlMessageCreator.createLogoutMessage(this.username));
     }
 
     public void sendUserListMessage() {
         messages.add(xmlMessageCreator.createUserListRequestMessage(Integer.toString(sessionId)));
-        //sendMessage(xmlMessageCreator.createUserListRequestMessage(Integer.toString(sessionId))); //!!!!!!!!!!!!
     }
 
     private void sendMessage(String msg) {
@@ -142,10 +135,10 @@ public class XMLClient extends Client {
                         logger.error("Message hasn't been read");
                     } else {
                         String msg = new String(messageBytes);
+                        logger.debug("Received " + msg);
                         ServerMessage serverMessage = xmlMessageInterpreter.interpret(msg); //TODO : duplication
-                        logger.debug("XMLClient read " + serverMessage.getMessage());
-                        serverMessage.interpret(XMLClient.this); //TODO : login client before receiving history
-                        //notifyValueChanged(serverMessage);
+                        logger.debug("XMLClient read " + serverMessage.getClass());
+                        serverMessage.interpret(XMLClient.this);
                     }
                 }
             } catch (IOException e) {
@@ -159,11 +152,15 @@ public class XMLClient extends Client {
     class WriteToSever implements Runnable {
         @Override
         public void run() {
+            XMLToMessage xmlToMessage = new XMLToMessage();
             try {
                 while (true) {
                     String message = (String) messages.take();
+                    logger.debug("Gonna send " + message);
                     sendMessage(message);
-                    sentMessages.add(XMLToMessage.parseMessage(new InputSource(new ByteArrayInputStream(message.getBytes(StandardCharsets.UTF_8)))));
+                    Message msg = xmlToMessage.parseMessage(new InputSource(new ByteArrayInputStream(message.getBytes(StandardCharsets.UTF_8))));
+                    msg.setUsername(username);
+                    sentMessages.add(msg);
                 }
             } catch (InterruptedException e) {
                 Thread.currentThread().interrupt();

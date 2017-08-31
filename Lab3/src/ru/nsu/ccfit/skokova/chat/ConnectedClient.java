@@ -15,7 +15,6 @@ public abstract class ConnectedClient {
     protected Socket socket;
     protected Server server;
     protected String username;
-    protected String date;
     protected boolean isValid;
     protected String type;
     protected BlockingQueue<Message> messages = new ArrayBlockingQueue<>(MAX_MSG_COUNT);
@@ -42,10 +41,6 @@ public abstract class ConnectedClient {
 
     public void setUsername(String username) {
         this.username = username;
-    }
-
-    public String getDate() {
-        return date;
     }
 
     public BlockingQueue<Message> getMessages() {

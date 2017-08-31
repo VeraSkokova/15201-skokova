@@ -2,6 +2,7 @@ package ru.nsu.ccfit.skokova.chat;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import ru.nsu.ccfit.skokova.chat.gui.ClientConnectedHandler;
 import ru.nsu.ccfit.skokova.chat.gui.ValueChangedHandler;
 import ru.nsu.ccfit.skokova.chat.message.LoginError;
 
@@ -24,11 +25,10 @@ public abstract class Client {
     protected Thread outThread;
 
     protected BlockingQueue<Object> messages = new ArrayBlockingQueue<>(MESSAGES_COUNT); //TODO : queue of objects?
-    //protected BlockingQueue<String> xmlMessages = new ArrayBlockingQueue<>(MESSAGES_COUNT);
-
     protected BlockingQueue<Object> sentMessages = new ArrayBlockingQueue<>(MESSAGES_COUNT);
 
     protected ArrayList<ValueChangedHandler> handlers = new ArrayList<>();
+    protected ClientConnectedHandler clientConnectedHandler;
 
     protected Logger logger = LogManager.getLogger(Client.class);
 
@@ -69,7 +69,6 @@ public abstract class Client {
             logger.info(message);
         } catch (NullPointerException e) {
             notifyValueChanged(new LoginError("Server is not opened"));
-            return;
         }
     }
 
@@ -130,7 +129,11 @@ public abstract class Client {
         return sentMessages;
     }
 
-    public BlockingQueue<Object> getMessages() {
-        return messages;
+    public ClientConnectedHandler getClientConnectedHandler() {
+        return clientConnectedHandler;
+    }
+
+    public void setClientConnectedHandler(ClientConnectedHandler clientConnectedHandler) {
+        this.clientConnectedHandler = clientConnectedHandler;
     }
 }

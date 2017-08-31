@@ -59,10 +59,10 @@ public class XMLMessageInterpreter {
                     }
                     break;
                 case "success":
-                    if (element.getChildNodes().item(1) == null) {
+                    if (element.getChildNodes().item(0) == null) {
                         serverMessage = parseServerSuccessMessage(element);
                     } else {
-                        switch (element.getChildNodes().item(1).getNodeName()) {
+                        switch (element.getChildNodes().item(0).getNodeName()) {
                             case "listusers":
                                 serverMessage = parseUserListSuccess(element);
                                 break;
@@ -102,6 +102,7 @@ public class XMLMessageInterpreter {
 
     private NewClientMessage parseUserLoginEvent(Element element) {
         String username = element.getElementsByTagName("name").item(0).getTextContent();
+        logger.debug("In interpreter username is " + username);
         return new NewClientMessage(username);
     }
 
@@ -126,18 +127,11 @@ public class XMLMessageInterpreter {
     }
 
     public ServerSuccessMessage parseServerSuccessMessage(Element element) {
-        try {
-            Message temp = (Message) client.getSentMessages().take();
-            logger.debug("Got server success message to " + temp.getMessage());
-            client.notifyValueChanged(temp); //TODO : ???
-        } catch (InterruptedException e) {
-            logger.error(e.getMessage());
-        }
-        return new ServerSuccessMessage("");
+        return new ServerSuccessMessage();
     }
 
     public UserListSuccess parseUserListSuccess(Element element) {
-        String userList = "List of users\n";
+        String userList = "\nList of the users:\n";
         NodeList nodeList = element.getChildNodes();
         for (int i = 0; i < nodeList.getLength(); i++) {
             Node node = nodeList.item(i);
@@ -147,20 +141,18 @@ public class XMLMessageInterpreter {
                     Node listuser = nodes.item(j);
                     if (listuser.getNodeType() != Node.TEXT_NODE) {
                         NodeList users = listuser.getChildNodes();
+                        userList += j + ". ";
                         for (int k = 0; k < users.getLength(); k++) {
                             Node user = users.item(k);
                             if (user.getNodeType() != Node.TEXT_NODE) {
-                                userList += user.getNodeName() + " " + user.getChildNodes().item(0).getTextContent() + "\n";
+                                userList += user.getChildNodes().item(0).getTextContent() + " ";
                             }
                         }
+                        userList += "\n";
                     }
                 }
             }
         }
         return new UserListSuccess(userList);
-    }
-
-    public LoginMessage parseLoginMessage(Element element) {
-        return new LoginMessage(client);
     }
 }

@@ -9,10 +9,15 @@ public class LogoutSuccess extends ServerMessage {
 
     @Override
     public void interpret(Client client) {
+        try {
+            Object logoutMessage = client.getSentMessages().take();
+        } catch (InterruptedException e) {
+            logger.warn(e.getMessage());
+        }
         setMessage("Bye!");
         client.setLoggedIn(false);
         client.interrupt();
         client.disconnect();
-        client.notifyValueChanged(client.isLoggedIn());
+        client.getClientConnectedHandler().handle(false);
     }
 }

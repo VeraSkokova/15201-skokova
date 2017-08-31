@@ -11,6 +11,7 @@ import ru.nsu.ccfit.skokova.chat.ClientPair;
 import ru.nsu.ccfit.skokova.chat.MessagePair;
 import ru.nsu.ccfit.skokova.chat.Server;
 
+import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 import java.io.IOException;
@@ -18,11 +19,19 @@ import java.io.IOException;
 public class XMLToMessage {
     private static final Logger logger = LogManager.getLogger(Server.class);
 
-    private static final DocumentBuilderFactory documentBuilderFactory = DocumentBuilderFactory.newInstance();
+    private DocumentBuilder documentBuilder;
 
-    public static ChatMessage parseMessage(InputSource inputSource) throws ParserConfigurationException, IOException, SAXException {
+    public XMLToMessage() {
+        try {
+            documentBuilder = DocumentBuilderFactory.newInstance().newDocumentBuilder();
+        } catch (ParserConfigurationException e) {
+            logger.error("Exception in Parser Configuration");
+        }
+    }
+
+    public ChatMessage parseMessage(InputSource inputSource) throws ParserConfigurationException, IOException, SAXException {
         ChatMessage message = null;
-        Document document = documentBuilderFactory.newDocumentBuilder().parse(inputSource);
+        Document document = documentBuilder.parse(inputSource);
         Node root = document.getDocumentElement();
         Element temp = (Element) root;
         switch (root.getNodeName()) {
@@ -52,18 +61,18 @@ public class XMLToMessage {
         return message;
     }
 
-    private static int parseSimpleCommand(Element element) {
+    private int parseSimpleCommand(Element element) {
         String sessionID = element.getElementsByTagName("session").item(0).getTextContent();
         return Integer.parseInt(sessionID);
     }
 
-    private static ClientPair parseLoginCommand(Element element) {
+    private ClientPair parseLoginCommand(Element element) {
         String name = element.getElementsByTagName("name").item(0).getTextContent();
         String type = element.getElementsByTagName("type").item(0).getTextContent();
         return new ClientPair(name, type);
     }
 
-    private static MessagePair parseMessageCommand(Element element) {
+    private MessagePair parseMessageCommand(Element element) {
         String message = element.getElementsByTagName("message").item(0).getTextContent();
         String sessionID = element.getElementsByTagName("session").item(0).getTextContent();
         int result = Integer.parseInt(sessionID);
