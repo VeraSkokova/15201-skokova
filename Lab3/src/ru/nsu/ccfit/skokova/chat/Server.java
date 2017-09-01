@@ -22,7 +22,6 @@ public class Server {
     public static final int MAX_PORT_NUMBER = 65535;
     private static final int MESSAGES_COUNT = 10000;
     private static final AtomicInteger SESSION_ID = new AtomicInteger(1);
-
     private static final Logger logger = LogManager.getLogger(Server.class);
 
     static {

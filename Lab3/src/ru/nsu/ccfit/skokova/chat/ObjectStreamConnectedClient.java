@@ -13,7 +13,6 @@ import java.net.Socket;
 public class ObjectStreamConnectedClient extends ConnectedClient {
     private static final Logger logger = LogManager.getLogger(Server.class);
 
-
     public ObjectStreamConnectedClient(Socket socket, Server server) {
         super(socket, server);
         this.type = "ObjectStream";
@@ -65,6 +64,8 @@ public class ObjectStreamConnectedClient extends ConnectedClient {
                 }
             } catch (IOException e) {
                 logger.error("Can't read message (IOException)");
+                close();
+                interrupt();
             } catch (ClassNotFoundException | ClassCastException e) {
                 logger.error("Unknown type of message. " + e.getMessage());
             } catch (NullPointerException e) {
