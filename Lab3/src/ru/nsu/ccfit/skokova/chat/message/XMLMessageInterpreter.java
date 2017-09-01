@@ -7,7 +7,6 @@ import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
-import ru.nsu.ccfit.skokova.chat.Client;
 import ru.nsu.ccfit.skokova.chat.XMLClient;
 
 import javax.xml.parsers.DocumentBuilder;
@@ -19,10 +18,8 @@ import java.nio.charset.StandardCharsets;
 
 public class XMLMessageInterpreter {
     private static final Logger logger = LogManager.getLogger(XMLClient.class);
-    private Client client;
 
-    public XMLMessageInterpreter(Client client) {
-        this.client = client;
+    public XMLMessageInterpreter() {
     }
 
     public ServerMessage interpret(String message) {
@@ -97,7 +94,6 @@ public class XMLMessageInterpreter {
 
     private NewClientMessage parseUserLoginEvent(Element element) {
         String username = element.getElementsByTagName("name").item(0).getTextContent();
-        logger.debug("In interpreter username is " + username);
         return new NewClientMessage(username);
     }
 

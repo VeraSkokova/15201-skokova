@@ -19,6 +19,7 @@ public abstract class Client {
     private static final int MESSAGES_COUNT = 10000;
     protected Socket socket;
     protected boolean isLoggedIn;
+    protected boolean isConnected;
 
     protected String server;
     protected String username;
@@ -37,12 +38,6 @@ public abstract class Client {
     protected Logger logger = LogManager.getLogger(Client.class);
 
     Client() {
-    }
-
-    Client(String server, int port, String username) {
-        this.server = server;
-        this.port = port;
-        this.username = username;
     }
 
 
@@ -142,6 +137,7 @@ public abstract class Client {
         socket = new Socket();
         socket.setKeepAlive(true);
         socket.connect(new InetSocketAddress(server, port), TIMEOUT);
+        isConnected = true;
         logger.debug("Client server: " + server);
         logger.debug("Client port: " + port);
     }

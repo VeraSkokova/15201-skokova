@@ -22,55 +22,37 @@ public class XMLClient extends Client {
     private DataOutputStream outputStream;
     private XMLMessageCreator xmlMessageCreator = new XMLMessageCreator();
 
-    XMLClient() {}
-
-    XMLClient(String server, int port, String username) {
-        super(server, port, username);
+    XMLClient() {
     }
 
     public static void main(String[] args) {
         Client client = new XMLClient();
         ClientFrame clientFrame = new ClientFrame(client);
         client.addHandler(clientFrame.new MessageUpdater());
-
-        //client.start();
     }
 
     public void start() {
         try {
-            createSocket();
+            if (!isConnected) {
+                createSocket();
+
+                this.inputStream = new DataInputStream(socket.getInputStream());
+                this.outputStream = new DataOutputStream(socket.getOutputStream());
+
+                this.inThread = new Thread(new XMLClient.ReadFromServer());
+                this.outThread = new Thread(new XMLClient.WriteToSever());
+
+                this.inThread.start();
+                this.outThread.start();
+            }
+            messages.add(xmlMessageCreator.createLoginMessage(username, "XML"));
         } catch (SocketTimeoutException e) {
             logger.error("Socket timeout exceeded");
             clientConnectedHandler.handle(false);
-            return;
         } catch (IOException e) {
             logger.error("Error in connection to server:" + e.getMessage());
             clientConnectedHandler.handle(false);
-            return;
         }
-
-        messages.add(xmlMessageCreator.createLoginMessage(username, "XML"));
-
-        try {
-            this.inputStream = new DataInputStream(socket.getInputStream());
-            this.outputStream = new DataOutputStream(socket.getOutputStream());
-        } catch (IOException e) {
-            logger.error("Exception creating new Input/output Streams: " + e.getMessage());
-        } catch (NullPointerException e) {
-            notifyValueChanged(new LoginError("Server is not opened"));
-            return;
-        }
-
-        this.inThread = new Thread(new XMLClient.ReadFromServer());
-        this.outThread = new Thread(new XMLClient.WriteToSever());
-
-        this.inThread.start();
-        this.outThread.start();
-
-    }
-
-    private void display(String msg) {
-        System.out.println(msg);
     }
 
     public void sendTextMessage(String message) {
@@ -90,45 +72,31 @@ public class XMLClient extends Client {
             outputStream.writeInt(msg.getBytes(StandardCharsets.UTF_8).length);
             outputStream.write(msg.getBytes(StandardCharsets.UTF_8));
             outputStream.flush();
-        } catch(IOException e) {
-            display("Exception writing to server: " + e.getMessage());
+        } catch (IOException e) {
+            logger.error("Exception writing to server: " + e.getMessage());
         }
-    }
-
-    public void setServer(String server) {
-        this.server = server;
-    }
-
-    public void setUsername(String username) {
-        this.username = username;
-    }
-
-    public int getPort() {
-        return this.port;
-    }
-
-    public void setPort(int port) {
-        this.port = port;
     }
 
     public void disconnect() {
         try {
-            if(inputStream != null) {
+            isConnected = false;
+            if (inputStream != null) {
                 inputStream.close();
             }
-            if(outputStream != null) {
+            if (outputStream != null) {
                 outputStream.close();
             }
-            if(socket != null) {
+            if (socket != null) {
                 socket.close();
             }
-        } catch(IOException e) {
+        } catch (IOException e) {
             System.out.println(e.getMessage());
         }
     }
 
     class ReadFromServer implements Runnable {
-        XMLMessageInterpreter xmlMessageInterpreter = new XMLMessageInterpreter(XMLClient.this);
+        XMLMessageInterpreter xmlMessageInterpreter = new XMLMessageInterpreter();
+
         @Override
         public void run() {
             try {

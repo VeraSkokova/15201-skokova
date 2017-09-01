@@ -116,7 +116,7 @@ public class ClientFrame extends JFrame {
     }
 
     private void addConnectionInfo() {
-        this.connectionPanel = new JPanel(new GridLayout(3,1));
+        this.connectionPanel = new JPanel(new GridLayout(3, 1));
         JPanel serverAndPortPanel = new JPanel(new GridLayout(1, 5, 1, 3));
         this.serverField = new JTextField("localhost");
         this.portField = new JTextField(client.getPort());
@@ -170,7 +170,7 @@ public class ClientFrame extends JFrame {
         messagePanel.add(messageLabel);
         messagePanel.add(this.messageField);
 
-        JPanel southPanel = new JPanel(new GridLayout(2,1));
+        JPanel southPanel = new JPanel(new GridLayout(2, 1));
         southPanel.add(messagePanel);
         southPanel.add(buttonPanel);
 
@@ -269,12 +269,11 @@ public class ClientFrame extends JFrame {
     public class MessageUpdater implements ValueChangedHandler {
         @Override
         public void handle(Object value) {
-            if (client.isLoggedIn()) {
-                if (value != null) {
-                    messageArea.append(value.toString() + "\n");
-                    messageArea.setCaretPosition(messageArea.getText().length() - 1);
-                }
+            if (value != null) {
+                messageArea.append(value.toString() + "\n");
+                messageArea.setCaretPosition(messageArea.getText().length() - 1);
             }
+
         }
     }
 
