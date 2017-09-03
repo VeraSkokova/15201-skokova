@@ -18,15 +18,15 @@ import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.atomic.AtomicInteger;
 
 public class Server {
+    static {
+        System.getProperties().setProperty("log4j.configurationFile", "src/log4j2.xml");
+    }
+
     public static final int MIN_PORT_NUMBER = 0;
     public static final int MAX_PORT_NUMBER = 65535;
     private static final int MESSAGES_COUNT = 10000;
     private static final AtomicInteger SESSION_ID = new AtomicInteger(1);
     private static final Logger logger = LogManager.getLogger(Server.class);
-
-    static {
-        System.getProperties().setProperty("log4j.configurationFile", "src/log4j2.xml");
-    }
 
     private ArrayList<ConnectedClient> connectedClients = new ArrayList<>();
     private BlockingQueue<Message> messageHistory = new ArrayBlockingQueue<>(MESSAGES_COUNT);
