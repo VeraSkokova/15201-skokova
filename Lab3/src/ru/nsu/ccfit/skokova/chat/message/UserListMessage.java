@@ -17,12 +17,13 @@ public class UserListMessage extends ChatMessage implements Serializable {
     }
 
     public void process(Server server, ConnectedClient connectedClient) {
+        ArrayList<ConnectedClient> connectedClientsCopy = server.getConnectedClients();
             if (this.getSessionId() != connectedClient.getSessionId()) {
                 server.sendMessage(new UserListError("Authentication error"), connectedClient);
             } else {
                 message = "List of the users\n";
-                for (int i = 0; i < server.getConnectedClients().size(); ++i) {
-                    ConnectedClient client = server.getConnectedClients().get(i);
+                for (int i = 0; i < connectedClientsCopy.size(); ++i) {
+                    ConnectedClient client = connectedClientsCopy.get(i);
                     message += "-" + " " + client.getUsername() + " " + client.getType() + "\n";
                     usernames.add(client.getUsername());
                     types.add(client.getType());

@@ -97,9 +97,6 @@ public class XMLConnectedClient extends ConnectedClient {
                 }
             } catch (IOException e) {
                 logger.info("Can't create an outputStream: " + e.getMessage());
-                if (server.getConnectedClients().contains(XMLConnectedClient.this)) {
-                    server.removeClient(XMLConnectedClient.this);
-                }
                 //interrupt();
                 //close();
             } catch (InterruptedException e) {

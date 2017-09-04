@@ -38,6 +38,8 @@ public class Server {
     private Thread objectThread;
     private Thread xmlThread;
 
+    private final Object lock = new Object();
+
     public Server(int firstPort, int secondPort) {
         this.firstPort = firstPort;
         this.secondPort = secondPort;
@@ -65,7 +67,9 @@ public class Server {
     }
 
     public ArrayList<ConnectedClient> getConnectedClients() {
-        return connectedClients;
+        synchronized (lock) {
+            return connectedClients;
+        }
     }
 
     public BlockingQueue<ChatMessage> getRequests() {
@@ -86,9 +90,11 @@ public class Server {
 
     protected void stop() {
         isWorking = false;
-        for (ConnectedClient connectedClient : connectedClients) {
-            connectedClient.interrupt();
-            connectedClient.close();
+        synchronized (lock) {
+            for (ConnectedClient connectedClient : connectedClients) {
+                connectedClient.interrupt();
+                connectedClient.close();
+            }
         }
         objectThread.interrupt();
         xmlThread.interrupt();
@@ -99,11 +105,13 @@ public class Server {
         logger.info(msg);
     }
 
-    public synchronized void broadcast(Message message) {
-        for (ConnectedClient connectedClient : connectedClients) {
-            if ((connectedClient.isValid()) && (!connectedClient.getUsername().equals(message.getUsername()))) {
-                logger.debug("Sending " + message.getMessage() + " from " + message.getUsername() + " to " + connectedClient.getUsername());
-                sendMessage(message, connectedClient);
+    public void broadcast(Message message) {
+        synchronized (lock) {
+            for (ConnectedClient connectedClient : connectedClients) {
+                if ((connectedClient.isValid()) && (!connectedClient.getUsername().equals(message.getUsername()))) {
+                    logger.debug("Sending " + message.getMessage() + " from " + message.getUsername() + " to " + connectedClient.getUsername());
+                    sendMessage(message, connectedClient);
+                }
             }
         }
     }
@@ -116,16 +124,20 @@ public class Server {
         messageHistory.add(message);
     }
 
-    public synchronized void removeClient(ConnectedClient connectedClient) {
-        connectedClients.remove(connectedClient);
+    public void removeClient(ConnectedClient connectedClient) {
+        synchronized (lock) {
+            connectedClients.remove(connectedClient);
+        }
     }
 
     public int setUserSessionId() {
         return SESSION_ID.getAndIncrement();
     }
 
-    public synchronized void addClient(ConnectedClient connectedClient) {
-        this.connectedClients.add(connectedClient);
+    public void addClient(ConnectedClient connectedClient) {
+        synchronized (lock) {
+            this.connectedClients.add(connectedClient);
+        }
     }
 
     public void setFirstPort(int firstPort) {
