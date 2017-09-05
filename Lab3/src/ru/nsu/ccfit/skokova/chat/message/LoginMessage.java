@@ -32,7 +32,7 @@ public class LoginMessage extends ChatMessage {
             server.sendMessage(new LoginSuccess(connectedClient.getSessionId()), connectedClient);
             server.sendMessageHistory(connectedClient);
             server.addClient(connectedClient);
-            NewClientMessage newClientMessage = new NewClientMessage(connectedClient.getUsername());
+            NewClientMessage newClientMessage = new NewClientMessage(connectedClient.getUsername(), connectedClient.getType());
             //newClientMessage.setUsername(this.username);
             logger.debug("Preparing to broadcast " + newClientMessage.toString());
             server.broadcast(newClientMessage);

@@ -3,8 +3,11 @@ package ru.nsu.ccfit.skokova.chat.message;
 import ru.nsu.ccfit.skokova.chat.Client;
 
 public class NewClientMessage extends ServerMessage {
-    public NewClientMessage(String message) {
+    private String type;
+
+    public NewClientMessage(String message, String type) {
         this.message = message;
+        this.type = type;
     }
 
     @Override
@@ -15,6 +18,10 @@ public class NewClientMessage extends ServerMessage {
     @Override
     public String getMessage() {
         return super.getMessage();
+    }
+
+    public String getType() {
+        return type;
     }
 
     @Override

@@ -153,7 +153,7 @@ public class XMLMessageCreator {
         return createString(document);
     }
 
-    public String createNewClientMessage(String username) {
+    public String createNewClientMessage(String username, String type) {
         Document document = documentBuilder.newDocument();
         Element event = document.createElement("event");
         document.appendChild(event);
@@ -162,6 +162,10 @@ public class XMLMessageCreator {
         Element name = document.createElement("name");
         event.appendChild(name);
         name.setTextContent(username);
+
+        Element typeElement = document.createElement("type");
+        event.appendChild(typeElement);
+        typeElement.setTextContent(type);
 
         return createString(document);
     }

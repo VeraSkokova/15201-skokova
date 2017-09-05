@@ -25,7 +25,7 @@ public class MessageToXML {
                 result = xmlMessageCreator.createServerSuccessMessage();
                 break;
             case "NewClientMessage":
-                result = xmlMessageCreator.createNewClientMessage(serverMessage.getMessage());
+                result = xmlMessageCreator.createNewClientMessage(serverMessage.getMessage(), ((NewClientMessage) serverMessage).getType());
                 break;
             case "ClientLoggedOutMessage":
                 result = xmlMessageCreator.createClientLoggedOutMessage(serverMessage.getUsername());

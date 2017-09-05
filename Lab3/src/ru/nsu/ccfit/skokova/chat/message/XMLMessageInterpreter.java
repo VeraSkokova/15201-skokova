@@ -94,7 +94,8 @@ public class XMLMessageInterpreter {
 
     private NewClientMessage parseUserLoginEvent(Element element) {
         String username = element.getElementsByTagName("name").item(0).getTextContent();
-        return new NewClientMessage(username);
+        String type = element.getElementsByTagName("type").item(0).getTextContent();
+        return new NewClientMessage(username, type);
     }
 
     private ClientLoggedOutMessage parseUserLogoutEvent(Element element) {
