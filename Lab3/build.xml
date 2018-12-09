@@ -1,0 +1,61 @@
+<project name="Chat" default="all">
+    <property name="main.build.dir" value="build/main"/>
+    <property name="main.src.dir" value="src"/>
+    <property name="test.build.dir" value="build/test"/>
+    <property name="lib.dir" location="lib"/>
+    <property name="test.src.dir" value="test"/>
+
+    <path id="classpath.test">
+        <pathelement location="lib/log4j-api-2.8.2.jar"/>
+        <pathelement location="lib/log4j-core-2.8.2.jar"/>
+        <pathelement location="${main.build.dir}"/>
+        <pathelement location="${test.build.dir}"/>
+    </path>
+
+    <target name="make.dirs" description="Make some dirs">
+        <mkdir dir="build"/>
+        <mkdir dir="build/main"/>
+    </target>
+
+    <target name="compile" description="compile java" depends="make.dirs">
+        <javac srcdir="${main.src.dir}" destdir="${main.build.dir}" includeantruntime="false">
+            <classpath refid="classpath.test"/>
+        </javac>
+    </target>
+
+    <target name="Server.jar" description="make jar file" depends="compile">
+        <jar jarfile="Server.jar" basedir="build/main">
+            <zipgroupfileset dir="${lib.dir}" includes="*.jar"/>
+            <manifest>
+                <attribute name="Main-Class" value="ru.nsu.ccfit.skokova.chat.Server"/>
+            </manifest>
+        </jar>
+    </target>
+
+    <target name="ObjectStreamClient.jar" description="make jar file" depends="compile">
+        <jar jarfile="ObjectStreamClient.jar" basedir="build/main">
+            <zipgroupfileset dir="${lib.dir}" includes="*.jar"/>
+            <manifest>
+                <attribute name="Main-Class" value="ru.nsu.ccfit.skokova.chat.ObjectStreamClient"/>
+            </manifest>
+        </jar>
+    </target>
+
+    <target name="XMLClient.jar" description="make jar file" depends="compile">
+        <jar jarfile="XMLClient.jar" basedir="build/main">
+            <zipgroupfileset dir="${lib.dir}" includes="*.jar"/>
+            <manifest>
+                <attribute name="Main-Class" value="ru.nsu.ccfit.skokova.chat.XMLClient"/>
+            </manifest>
+        </jar>
+    </target>
+
+
+    <target name="all" description="Do the build" depends="Server.jar, ObjectStreamClient.jar, XMLClient.jar"/>
+
+    <target name="clean" description="clean up">
+        <echo>I'm cleaning up.</echo>
+        <delete dir="build"/>
+    </target>
+
+</project>
